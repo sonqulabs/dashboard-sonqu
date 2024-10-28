@@ -2,15 +2,24 @@ import { Heading } from '@/common/components/customize/Heading';
 import EmployeeTable from './components/tables/table';
 import { users } from './data/user';
 import Link from 'next/link';
+import { Separator } from 'raiz/src/common/components/shadcnui/separator';
+import { auth } from 'raiz/auth';
 
-export const UsersView = () => {
+export const UsersView = async () => {
 	const employees = users;
-
+	const session = await auth();
+	const res = await fetch(`${process.env.API_LOCALHOST}/users`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${session?.user.token}`,
+		},
+	});
+	const data = await res.json();
 	return (
-		<div>
-			<div className="flex items-center justify-between">
+		<div className="w-full">
+			<div className="flex flex-col sm:flex-row items-start gap-2 sm:gap-2  sm:items-center justify-between">
 				<Heading
-					title="Lista de Usuarios"
+					title={`Lista de Usuarios (${employees.length})`}
 					description="Administración de Perfiles"
 				/>
 				<Link
@@ -20,7 +29,9 @@ export const UsersView = () => {
 					+ Agregar
 				</Link>
 			</div>
-			<EmployeeTable data={employees} totalData={employees.length} />
+			<Separator className="my-3" />
+
+			<EmployeeTable data={data} totalData={employees.length} />
 		</div>
 	);
 };

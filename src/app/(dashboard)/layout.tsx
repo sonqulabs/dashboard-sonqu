@@ -2,6 +2,7 @@
 
 import AppSidebar from '@/common/components/layoutAdmin/AppSidebar';
 import type { Metadata } from 'next';
+import { NuqsAdapter } from 'nuqs/adapters/next/app';
 
 export const metadata: Metadata = {
 	title: 'Sistema Sonqu',
@@ -13,5 +14,9 @@ export default async function AdminLayout({
 }: {
 	children: React.ReactNode;
 }) {
-	return <AppSidebar>{children}</AppSidebar>;
+	return (
+		<AppSidebar>
+			<NuqsAdapter>{children}</NuqsAdapter>
+		</AppSidebar>
+	);
 }

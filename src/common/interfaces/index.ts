@@ -23,4 +23,6 @@ export type User = {
 	password?: string;
 	active: boolean;
 	email: string;
+	username?: string;
+	roleId?: string;
 };

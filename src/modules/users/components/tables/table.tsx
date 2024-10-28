@@ -12,7 +12,7 @@ export default function EmployeeTable({
 	totalData: number;
 }) {
 	return (
-		<div className="space-y-4 ">
+		<div>
 			<DataTable columns={columns} data={data} totalItems={totalData} />
 		</div>
 	);

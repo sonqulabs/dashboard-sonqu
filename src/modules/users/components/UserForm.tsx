@@ -171,6 +171,7 @@ export default function UserForm({
 													size="icon"
 													className="absolute right-0 top-0 h-full"
 													onClick={() => setShowPassword(!showPassword)}
+													disabled={!field.value}
 												>
 													{showPassword ? (
 														<EyeOff className="h-5 w-5" />

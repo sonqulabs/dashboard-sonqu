@@ -4,7 +4,7 @@ export const LoginSchema = z.object({
 	email: z.string({ required_error: 'Email es requerido' }).email({
 		message: 'Escriba un correo válido',
 	}),
-	password: z.string({ required_error: 'Este campo es requerido' }).min(1, {
+	passwords: z.string({ required_error: 'Este campo es requerido' }).min(1, {
 		message: 'Escriba su contraseña',
 	}),
 	code: z.optional(z.string()),

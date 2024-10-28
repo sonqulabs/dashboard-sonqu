@@ -22,10 +22,11 @@ import {
 	flexRender,
 	getCoreRowModel,
 	getPaginationRowModel,
-	// PaginationState,
+	PaginationState,
 	useReactTable,
 } from '@tanstack/react-table';
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
+import { parseAsInteger, useQueryState } from 'nuqs';
 
 interface DataTableProps<TData, TValue> {
 	columns: ColumnDef<TData, TValue>[];
@@ -40,20 +41,50 @@ export function DataTable<TData, TValue>({
 	totalItems,
 	pageSizeOptions = [10, 20, 30, 40, 50],
 }: DataTableProps<TData, TValue>) {
+	const [currentPage, setCurrentPage] = useQueryState(
+		'page',
+		parseAsInteger.withOptions({ shallow: false }).withDefault(1)
+	);
+	const [pageSize, setPageSize] = useQueryState(
+		'limit',
+		parseAsInteger
+			.withOptions({ shallow: false, history: 'push' })
+			.withDefault(10)
+	);
+
 	const paginationState = {
-		pageIndex: 10 - 1, // zero-based index for React Table
-		pageSize: 20,
+		pageIndex: currentPage - 1, // zero-based index for React Table
+		pageSize: pageSize,
+	};
+	const paginatedData = data.slice(
+		(currentPage - 1) * pageSize,
+		currentPage * pageSize
+	);
+
+	const pageCount = Math.ceil(totalItems / pageSize);
+
+	const handlePaginationChange = (
+		updaterOrValue:
+			| PaginationState
+			| ((old: PaginationState) => PaginationState)
+	) => {
+		const pagination =
+			typeof updaterOrValue === 'function'
+				? updaterOrValue(paginationState)
+				: updaterOrValue;
+
+		setCurrentPage(pagination.pageIndex + 1); // converting zero-based index to one-based
+		setPageSize(pagination.pageSize);
 	};
 
-	const pageCount = Math.ceil(totalItems / 20);
-
 	const table = useReactTable({
-		data,
+		data: paginatedData,
 		columns,
 		pageCount: pageCount,
 		state: {
 			pagination: paginationState,
 		},
+		onPaginationChange: handlePaginationChange,
 		getCoreRowModel: getCoreRowModel(),
 		getPaginationRowModel: getPaginationRowModel(),
 		manualPagination: true,
@@ -62,13 +93,13 @@ export function DataTable<TData, TValue>({
 
 	return (
 		<div className="space-y-4">
-			<ScrollArea className="h-[calc(80vh-220px)] rounded-md border md:h-[calc(90dvh-240px)]">
+			<ScrollArea className="h-[calc(80vh-220px)] rounded-md border md:h-[calc(100dvh-371px)]">
 				<Table className="relative">
 					<TableHeader>
 						{table.getHeaderGroups().map((headerGroup) => (
 							<TableRow key={headerGroup.id}>
 								{headerGroup.headers.map((header) => (
-									<TableHead key={header.id}>
+									<TableHead key={header.id} className="p-2">
 										{header.isPlaceholder
 											? null
 											: flexRender(
@@ -88,7 +119,7 @@ export function DataTable<TData, TValue>({
 									data-state={row.getIsSelected() && 'selected'}
 								>
 									{row.getVisibleCells().map((cell) => (
-										<TableCell key={cell.id}>
+										<TableCell key={cell.id} className="p-2">
 											{flexRender(
 												cell.column.columnDef.cell,
 												cell.getContext()
@@ -172,8 +203,7 @@ export function DataTable<TData, TValue>({
 							onClick={() => table.setPageIndex(0)}
 							disabled={!table.getCanPreviousPage()}
 						>
-							{/* <DoubleArrowLeftIcon className="h-4 w-4" aria-hidden="true" /> */}
-							{'<<'}
+							{`<<`}
 						</Button>
 						<Button
 							aria-label="Go to previous page"
@@ -200,8 +230,7 @@ export function DataTable<TData, TValue>({
 							onClick={() => table.setPageIndex(table.getPageCount() - 1)}
 							disabled={!table.getCanNextPage()}
 						>
-							{/* <DoubleArrowRightIcon className="h-4 w-4" aria-hidden="true" /> */}
-							{'>> '}
+							{`>>`}
 						</Button>
 					</div>
 				</div>

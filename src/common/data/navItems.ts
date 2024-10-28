@@ -3,7 +3,7 @@ import { NavItem } from '../interfaces';
 export const navItems: NavItem[] = [
 	{
 		title: 'Dashboard',
-		url: '/dashboard/overview',
+		url: '/dashboard',
 		icon: 'dashboard',
 		isActive: false,
 		items: [], // Empty array as there are no child items for Dashboard
@@ -17,19 +17,24 @@ export const navItems: NavItem[] = [
 	},
 
 	{
-		title: 'Account',
+		title: 'Sonqu website',
 		url: '#', // Placeholder as there is no direct link for the parent
 		icon: 'billing',
 		isActive: true,
 
 		items: [
 			{
-				title: 'Profile',
+				title: 'Recetas Pendientes',
 				url: '/dashboard/profile',
 				icon: 'userPen',
 			},
 			{
-				title: 'Login',
+				title: 'Recetas ',
+				url: '/',
+				icon: 'login',
+			},
+			{
+				title: 'Categorias',
 				url: '/',
 				icon: 'login',
 			},

@@ -19,6 +19,7 @@
 			}
 		],
 		"paths": {
+			"raiz/*": ["./*"],
 			"@/*": ["./src/*"],
 			"@wrappers": ["./src/common/wrappers/index"],
 			"@styles/*": ["./src/styles/*"],

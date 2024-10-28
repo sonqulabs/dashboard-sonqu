@@ -32,6 +32,10 @@ import {
 } from 'lucide-react';
 import * as React from 'react';
 import { Nav } from './Nav';
+import { LogoutButton } from '../customize/Logout';
+import { auth } from 'raiz/auth';
+import Link from 'next/link';
+import { Avatar, AvatarFallback, AvatarImage } from '../shadcnui/avatar';
 
 export const company = {
 	name: 'Administración',
@@ -39,11 +43,25 @@ export const company = {
 	plan: 'Sonqu ',
 };
 
-export default function AppSidebar({
+export default async function AppSidebar({
 	children,
 }: {
 	children: React.ReactNode;
 }) {
+	const session = await auth();
+	if (!session)
+		return (
+			<div className="h-screen w-full flex flex-col gap-2 items-center justify-center">
+				<h1 className="text-lg ">¡No estas autenticado!, debes de </h1>
+				<Link
+					href="/"
+					className="bg-gray-800 rounded-xl text-sm px-4 py-2 text-white"
+				>
+					Iniciar Sesión
+				</Link>
+			</div>
+		);
+
 	return (
 		<SidebarProvider>
 			<Sidebar collapsible="icon">
@@ -75,20 +93,23 @@ export default function AppSidebar({
 										size="lg"
 										className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
 									>
-										{/* <Avatar className="h-8 w-8 rounded-lg">
+										<Avatar className="h-8 w-8 rounded-lg">
 											<AvatarImage
 												src={session?.user?.image || ''}
-												alt={session?.user?.name || ''}
+												alt={session?.user?.username || ''}
 											/>
 											<AvatarFallback className="rounded-lg">
-												{session?.user?.name?.slice(0, 2)?.toUpperCase() ||
+												{session?.user?.username?.slice(0, 2)?.toUpperCase() ||
 													'CN'}
 											</AvatarFallback>
-										</Avatar> */}{' '}
-										avatar
+										</Avatar>
 										<div className="grid flex-1 text-left text-sm leading-tight">
-											<span className="truncate font-semibold">name</span>
-											<span className="truncate text-xs">email</span>
+											<span className="truncate font-semibold">
+												{session.user?.username}
+											</span>
+											<span className="truncate text-xs">
+												{session.user?.username}
+											</span>
 										</div>
 										<ChevronsUpDown className="ml-auto size-4" />
 									</SidebarMenuButton>
@@ -101,19 +122,24 @@ export default function AppSidebar({
 								>
 									<DropdownMenuLabel className="p-0 font-normal">
 										<div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
-											{/* <Avatar className="h-8 w-8 rounded-lg">
+											<Avatar className="h-8 w-8 rounded-lg">
 												<AvatarImage
 													src={session?.user?.image || ''}
 													alt={session?.user?.name || ''}
 												/>
 												<AvatarFallback className="rounded-lg">
-												namee
+													{session?.user?.name?.slice(0, 2)?.toUpperCase() ||
+														'CN'}
 												</AvatarFallback>
-											</Avatar> */}{' '}
-											avatar
+											</Avatar>
 											<div className="grid flex-1 text-left text-sm leading-tight">
-												<span className="truncate font-semibold">name</span>
-												<span className="truncate text-xs"> email</span>
+												<span className="truncate font-semibold">
+													{session.user?.name}
+												</span>
+												<span className="truncate text-xs">
+													{' '}
+													{session.user?.username}
+												</span>
 											</div>
 										</div>
 									</DropdownMenuLabel>
@@ -135,8 +161,10 @@ export default function AppSidebar({
 									</DropdownMenuGroup>
 									<DropdownMenuSeparator />
 									<DropdownMenuItem>
-										<LogOut />
-										Log out
+										<LogoutButton>
+											<LogOut />
+											Cerrar Sesión
+										</LogoutButton>
 									</DropdownMenuItem>
 								</DropdownMenuContent>
 							</DropdownMenu>

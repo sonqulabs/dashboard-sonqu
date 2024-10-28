@@ -1,5 +1,3 @@
-import { Separator } from '../shadcnui/separator';
-
 interface HeadingProps {
 	title: string;
 	description?: string;
@@ -12,7 +10,6 @@ export const Heading: React.FC<HeadingProps> = ({ title, description }) => {
 			{description && (
 				<p className="text-sm text-muted-foreground">{description}</p>
 			)}
-			<Separator className="my-3" />
 		</div>
 	);
 };

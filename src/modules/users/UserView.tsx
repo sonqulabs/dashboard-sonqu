@@ -11,7 +11,7 @@ export default async function UserViewPage({
 	let pageTitle = 'Crear Nuevo Usuario';
 
 	if (productId !== 'nuevo') {
-		pageTitle = `Edit Product`;
+		pageTitle = `Editar Usuario`;
 	}
 
 	return <UserForm initialData={product} pageTitle={pageTitle} />;
