@@ -73,9 +73,9 @@ export function UserAuthForm() {
 										<FormLabel>Correo Eletrónico</FormLabel>
 										<FormControl>
 											<Input
-												type="email"
+												type="text"
 												disabled={loading}
-												placeholder="name@example.com"
+												placeholder="name@example.com o 9991"
 												{...field}
 											/>
 										</FormControl>

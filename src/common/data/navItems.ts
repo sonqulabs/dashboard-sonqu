@@ -35,7 +35,7 @@ export const navItems: NavItem[] = [
 			},
 			{
 				title: 'Categorias',
-				url: '/',
+				url: '/recetas/categorias',
 				icon: 'login',
 			},
 		],

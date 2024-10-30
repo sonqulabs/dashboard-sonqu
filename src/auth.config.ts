@@ -14,7 +14,7 @@ export default {
 							'Content-Type': 'application/json',
 						},
 						body: JSON.stringify({
-							username: credentials.email,
+							phoneOrEmail: credentials.email,
 							password: credentials.password,
 						}),
 					}

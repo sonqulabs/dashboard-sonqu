@@ -146,6 +146,12 @@ export default async function AppSidebar({
 									<DropdownMenuSeparator />
 
 									<DropdownMenuGroup>
+										<Link href="/configuracion/grupoReceta">
+											<DropdownMenuItem>
+												<BadgeCheck />
+												Configuración
+											</DropdownMenuItem>
+										</Link>
 										<DropdownMenuItem>
 											<BadgeCheck />
 											Account
