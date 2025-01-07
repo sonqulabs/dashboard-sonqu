@@ -3,6 +3,7 @@
 import AppSidebar from '@/common/components/layoutAdmin/AppSidebar';
 import type { Metadata } from 'next';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
+import { Toaster } from 'sonner';
 
 export const metadata: Metadata = {
 	title: 'Sistema Sonqu',
@@ -16,7 +17,9 @@ export default async function AdminLayout({
 }) {
 	return (
 		<AppSidebar>
-			<NuqsAdapter>{children}</NuqsAdapter>
+			<NuqsAdapter>
+				{children} <Toaster />
+			</NuqsAdapter>
 		</AppSidebar>
 	);
 }

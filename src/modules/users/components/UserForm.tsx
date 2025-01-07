@@ -21,9 +21,8 @@ import {
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { User } from '@/common/interfaces';
 import { Heading } from '@/common/components/customize/Heading';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import {
 	InputOTP,
@@ -31,18 +30,22 @@ import {
 	InputOTPSeparator,
 	InputOTPSlot,
 } from '@shadcnui/input-otp';
+import { useCreateOrUpdateUser } from 'raiz/src/hooks/useUsers';
+import { Roles, User } from 'raiz/src/common/interfaces/configuracion';
+import { useRole } from 'raiz/src/hooks/useRoles';
+import { useRouter } from 'next/navigation';
 const formSchema = z.object({
-	passwords: z.string().min(2, {
+	password: z.string().min(2, {
 		message: 'Product name must be at least 2 characters.',
 	}),
-	cel: z.string().min(2, {
+	phone: z.string().min(2, {
 		message: 'Product name must be at least 2 characters.',
 	}),
-	name: z.string().min(2, {
+	username: z.string().min(2, {
 		message: 'Product name must be at least 2 characters.',
 	}),
 	role: z.string(),
-	active: z.boolean(),
+	state: z.string(),
 	email: z
 		.string()
 		.email('Por favor, introduce un correo electrónico válido')
@@ -53,18 +56,24 @@ const formSchema = z.object({
 export default function UserForm({
 	initialData,
 	pageTitle,
+	buttonTitle,
 }: {
 	initialData: User | null;
 	pageTitle: string;
+	buttonTitle: string;
 }) {
 	const [showPassword, setShowPassword] = useState(false);
+	const router = useRouter();
+
+	const { mutation } = useCreateOrUpdateUser();
+	const { data } = useRole();
 
 	const defaultValues = {
-		cel: initialData?.cel || '',
-		name: initialData?.name || '',
-		passwords: initialData?.cel || '',
-		role: initialData?.role || '',
-		active: initialData?.active || false,
+		phone: initialData?.phone || '',
+		username: initialData?.username || '',
+		password: initialData?.password || '',
+		role: initialData?.role?.id?.toString() || '',
+		state: initialData?.state || '',
 		email: initialData?.email || '',
 	};
 
@@ -73,12 +82,30 @@ export default function UserForm({
 		values: defaultValues,
 	});
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
-		console.log(values);
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		console.log('user:', values);
+		try {
+			const id = initialData?.id?.toString();
+			const { role, email, ...otherValues } = values;
+			const formattedValues = {
+				roleId: Number(role),
+				email: email === '' ? null : email,
+				...otherValues,
+			};
+			await mutation.mutateAsync({ id, newUser: formattedValues });
+		} catch (error) {
+			console.error('Error al enviar el formulario:', error);
+		}
 	}
 
 	return (
-		<div className="mx-auto w-full">
+		<div className="container mx-auto pb-10 pt-5">
+			<button
+				className="hover:underline text-sm mb-4"
+				onClick={() => router.back()}
+			>
+				<span>{`<--`}</span> Volver
+			</button>
 			<Heading title={pageTitle} />
 
 			<div>
@@ -87,7 +114,7 @@ export default function UserForm({
 						<div className="grid grid-cols-1 gap-6 md:grid-cols-2">
 							<FormField
 								control={form.control}
-								name="name"
+								name="username"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Nombre Completo</FormLabel>
@@ -103,7 +130,7 @@ export default function UserForm({
 							/>
 							<FormField
 								control={form.control}
-								name="cel"
+								name="phone"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Celular</FormLabel>
@@ -153,7 +180,7 @@ export default function UserForm({
 							/>
 							<FormField
 								control={form.control}
-								name="passwords"
+								name="password"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel htmlFor={field.name}>Contraseña</FormLabel>
@@ -185,7 +212,7 @@ export default function UserForm({
 									</FormItem>
 								)}
 							/>
-							<FormField
+							{/* <FormField
 								control={form.control}
 								name="role"
 								render={({ field }) => (
@@ -211,27 +238,55 @@ export default function UserForm({
 										<FormMessage />
 									</FormItem>
 								)}
+							/> */}
+							<FormField
+								control={form.control}
+								name="role"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Elige un rol</FormLabel>
+										<Select
+											onValueChange={field.onChange}
+											defaultValue={field.value}
+										>
+											<FormControl>
+												<SelectTrigger>
+													<SelectValue placeholder="Selecciona un rol" />
+												</SelectTrigger>
+											</FormControl>
+											<SelectContent>
+												{data?.map((item: Roles) => {
+													return (
+														<SelectItem
+															key={item.id}
+															value={item.id ? item.id.toString() : ''}
+														>
+															{item.name}
+														</SelectItem>
+													);
+												})}
+											</SelectContent>
+										</Select>
+
+										<FormMessage />
+									</FormItem>
+								)}
 							/>
 							<FormField
 								control={form.control}
-								name="active"
+								name="state"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Estado</FormLabel>
-										<Select
-											onValueChange={(value) =>
-												field.onChange(value === 'true')
-											}
-											value={field.value.toString()}
-										>
+										<Select onValueChange={field.onChange} value={field.value}>
 											<FormControl>
 												<SelectTrigger>
 													<SelectValue placeholder="Selecciona un estado" />
 												</SelectTrigger>
 											</FormControl>
 											<SelectContent>
-												<SelectItem value="true">Activo</SelectItem>
-												<SelectItem value="false">Inactivo</SelectItem>
+												<SelectItem value="active">Activo</SelectItem>
+												<SelectItem value="disable">Inactivo</SelectItem>
 											</SelectContent>
 										</Select>
 										<FormMessage />
@@ -240,7 +295,17 @@ export default function UserForm({
 							/>
 						</div>
 
-						<Button type="submit">Crear Usuario</Button>
+						<Button type="submit" disabled={mutation.isPending}>
+							{mutation.isPending ? (
+								<span className="flex items-center gap-2">
+									{' '}
+									<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+									cargando
+								</span>
+							) : (
+								buttonTitle
+							)}
+						</Button>
 					</form>
 				</Form>
 			</div>

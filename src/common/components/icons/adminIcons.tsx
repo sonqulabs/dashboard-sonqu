@@ -9,6 +9,7 @@ import {
 	CreditCard,
 	File,
 	FileText,
+	Globe,
 	HelpCircle,
 	Image,
 	Laptop,
@@ -63,6 +64,7 @@ export const Icons = {
 	pizza: Pizza,
 	sun: SunMedium,
 	moon: Moon,
+	web: Globe,
 	laptop: Laptop,
 	gitHub: ({ ...props }: LucideProps) => (
 		<svg

@@ -1,18 +1,29 @@
+'use client';
+import { useUserById } from 'raiz/src/hooks/useUsers';
 import UserForm from './components/UserForm';
 
 type TProductViewPageProps = {
 	productId: string;
 };
 
-export default async function UserViewPage({
-	productId,
-}: TProductViewPageProps) {
-	const product = null;
-	let pageTitle = 'Crear Nuevo Usuario';
+export default function UserView({ productId }: TProductViewPageProps) {
+	const isNewProduct = productId === 'nuevo';
 
-	if (productId !== 'nuevo') {
-		pageTitle = `Editar Usuario`;
-	}
+	const {
+		data: product = null,
+		isLoading,
+		isError,
+	} = useUserById(productId, isNewProduct);
 
-	return <UserForm initialData={product} pageTitle={pageTitle} />;
+	if (isLoading) return <h1>cargandooo...</h1>;
+	if (isError) return <h1>error...</h1>;
+	const pageTitle = isNewProduct ? 'Crear Usuario' : 'Editar Usuario';
+	const buttonTitle = isNewProduct ? 'Crear' : 'Editar';
+	return (
+		<UserForm
+			initialData={product}
+			pageTitle={pageTitle}
+			buttonTitle={buttonTitle}
+		/>
+	);
 }

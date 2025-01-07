@@ -1,39 +1,26 @@
-import { auth } from 'raiz/auth';
+'use client';
+import { useCategoryById } from 'raiz/src/hooks/useCategory';
 import CategoryForm from './components/CategoryForm';
-import { notFound } from 'next/navigation';
 
 type TProductViewPageProps = {
 	productId: string;
 };
 
-export default async function CategoryView({
-	productId,
-}: TProductViewPageProps) {
-	const session = await auth();
-	let product = null;
-	let pageTitle = 'Crear Categoría';
-	let buttonTitle = 'Crear';
+export default function CategoryView({ productId }: TProductViewPageProps) {
+	const isNewProduct = productId === 'nuevo';
 
-	if (productId !== 'nuevo') {
-		pageTitle = `Editar Categoría`;
-		buttonTitle = 'Editar';
+	const {
+		data: product = null,
+		isLoading,
+		isError,
+	} = useCategoryById(productId, isNewProduct);
 
-		const res = await fetch(
-			`${process.env.API_LOCALHOST}/category/${productId}`,
-			{
-				method: 'GET',
-				headers: {
-					Authorization: `Bearer ${session?.user.token}`,
-				},
-			}
-		);
-		const data = await res.json();
-		if (!data) {
-			notFound();
-		}
-		product = data;
-	}
-
+	if (isLoading) return <h1>cargandooo...</h1>;
+	if (isError) return <h1>error...</h1>;
+	const pageTitle = isNewProduct
+		? 'Crear Categoría de Receta'
+		: 'Editar Categoría de Receta';
+	const buttonTitle = isNewProduct ? 'Crear' : 'Editar';
 	return (
 		<CategoryForm
 			initialData={product}

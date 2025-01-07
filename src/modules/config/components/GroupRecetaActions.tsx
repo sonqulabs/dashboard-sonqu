@@ -6,35 +6,23 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from '@shadcnui/dropdown-menu';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { deleteGroupFunction } from 'raiz/src/common/api/categoryGroup';
 import { Button } from 'raiz/src/common/components/shadcnui/button';
 import { CategoryGroup } from 'raiz/src/common/interfaces/recetas';
+import { useDeleteCategoryGroup } from 'raiz/src/hooks/useCategoryGroup';
 export const GroupRecetaActions = ({ data }: Props) => {
 	const router = useRouter();
-	const queryClient = useQueryClient();
 
-	const mutation = useMutation({
-		mutationFn: async (id: number) => {
-			return await deleteGroupFunction(id);
-		},
-		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['categoryGroups'] });
-		},
-		onError: (error) => {
-			console.error('Error al crear o editar el grupo de categoría:', error);
-		},
-	});
+	const { mutation } = useDeleteCategoryGroup();
+	const id = data.id?.toString();
 
 	const handleDelete = async () => {
-		if (
-			confirm('¿Estás seguro de que deseas eliminar este grupo de recetas?')
-		) {
-			await mutation.mutateAsync(data.id!);
+		if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+			await mutation.mutateAsync(id!);
 		}
 	};
+
 	return (
 		<DropdownMenu>
 			<DropdownMenuTrigger asChild>

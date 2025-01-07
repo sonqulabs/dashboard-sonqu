@@ -1,34 +1,52 @@
 import { Category } from '../interfaces/recetas';
-import HttpRequest from './http-request.service';
+import { httpsRequest } from './http-request.service';
 
-class CategoryService extends HttpRequest {
-	constructor() {
-		super('category');
-	}
+export const CategoryService = () => {
+	const {
+		get,
+		post,
+		put,
+		delete: deleteRequest,
+		configRequest,
+	} = httpsRequest();
 
-	// Métodos CRUD para el recurso Category
-	public async getCategory(): Promise<Category[]> {
-		return this.get<Category[]>('category');
-	}
+	const getCategory = async (): Promise<Category[]> => {
+		configRequest({ endpoint: 'category' });
+		const res = await get<Category[]>();
+		return res;
+	};
 
-	public async getCategoryById(id: string): Promise<Category> {
-		return this.get<Category>(`category/${id}`);
-	}
+	const getCategoryById = async (id: string): Promise<Category> => {
+		configRequest({ endpoint: `category/${id}` });
+		const res = await get<Category>();
+		return res;
+	};
 
-	public async createCategory(data: Omit<Category, 'id'>): Promise<Category> {
-		return this.post<Category>('category', data);
-	}
+	const createCategory = async (data: Category): Promise<Category> => {
+		configRequest({ endpoint: 'category' });
+		const res = await post<Category>(data);
 
-	public async updateCategory(
-		id: number,
-		data: Partial<Category>
-	): Promise<Category> {
-		return this.put<Category>(`category/${id}`, data);
-	}
+		return res;
+	};
+	const updateCategory = async (
+		data: Category,
+		id: string
+	): Promise<Category> => {
+		configRequest({ endpoint: `category/${id}` });
+		const res = await put<Category>(data);
 
-	public async deleteCategory(id: number): Promise<void> {
-		return this.delete<void>(`category/${id}`);
-	}
-}
+		return res;
+	};
+	const deleteCategory = async (id: string): Promise<void> => {
+		configRequest({ endpoint: `category/${id}` });
+		await deleteRequest();
+	};
 
-export default CategoryService;
+	return {
+		getCategory,
+		getCategoryById,
+		createCategory,
+		updateCategory,
+		deleteCategory,
+	};
+};

@@ -1,6 +1,5 @@
 'use client';
-import { useQuery } from '@tanstack/react-query';
-import { getCategoryGroupByIdFunction } from 'raiz/src/common/api/categoryGroup';
+import { useCategoryGroupById } from 'raiz/src/hooks/useCategoryGroup';
 import GroupRecipesForm from './components/GroupRecipesForm';
 
 type TProductViewPageProps = {
@@ -13,13 +12,8 @@ export default function GroupRecipesView({ productId }: TProductViewPageProps) {
 		data: product = null,
 		isLoading,
 		isError,
-	} = useQuery({
-		queryKey: ['categoryGroupById', productId],
-		queryFn: () => getCategoryGroupByIdFunction(productId),
-		enabled: !isNewProduct, // Solo ejecuta la consulta si no es un nuevo producto
-	});
+	} = useCategoryGroupById(productId, isNewProduct);
 
-	// Manejo de estados de carga y error
 	if (isLoading) return <h1>cargandooo...</h1>;
 	if (isError) return <h1>error...</h1>;
 

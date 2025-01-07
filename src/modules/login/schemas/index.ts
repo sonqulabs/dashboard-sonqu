@@ -1,11 +1,19 @@
 import * as z from 'zod';
 
+const emailOrPhoneRegex =
+	/^(\d{9}|[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/;
+
 export const LoginSchema = z.object({
-	email: z.string({ required_error: 'Email es requerido' }),
+	email: z
+		.string()
+		.nonempty({ message: 'El campo no puede estar vacío' })
+		.regex(emailOrPhoneRegex, {
+			message:
+				'Ingrese un correo electrónico válido o un número de celular de 9 dígitos',
+		}),
 	passwords: z.string({ required_error: 'Este campo es requerido' }).min(1, {
 		message: 'Escriba su contraseña',
 	}),
-	code: z.optional(z.string()),
 });
 
 export const RegisterSchema = z.object({

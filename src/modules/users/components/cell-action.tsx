@@ -1,5 +1,4 @@
 'use client';
-import { User } from '@/common/interfaces';
 import { Button } from '@shadcnui/button';
 import {
 	DropdownMenu,
@@ -8,8 +7,10 @@ import {
 	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from '@shadcnui/dropdown-menu';
-import { Edit, MoreHorizontal, Trash } from 'lucide-react';
+import { Edit, MoreHorizontal } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { User } from 'raiz/src/common/interfaces/configuracion';
+import { useDeleteUser } from 'raiz/src/hooks/useUsers';
 
 interface CellActionProps {
 	data: User;
@@ -17,7 +18,14 @@ interface CellActionProps {
 
 export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 	const router = useRouter();
+	const { mutation } = useDeleteUser();
+	const id = data.id?.toString();
 
+	const handleDelete = async () => {
+		if (confirm('¿Estás seguro de que deseas eliminar esta categoría?')) {
+			await mutation.mutateAsync(id!);
+		}
+	};
 	return (
 		<>
 			<DropdownMenu modal={false}>
@@ -33,9 +41,7 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 					<DropdownMenuItem onClick={() => router.push(`/usuarios/${data.id}`)}>
 						<Edit className="mr-2 h-4 w-4" /> Update
 					</DropdownMenuItem>
-					<DropdownMenuItem>
-						<Trash className="mr-2 h-4 w-4" /> Delete
-					</DropdownMenuItem>
+					<DropdownMenuItem onClick={handleDelete}>Borrar</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</>

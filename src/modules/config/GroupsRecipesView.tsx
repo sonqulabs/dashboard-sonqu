@@ -5,7 +5,6 @@ import { useCategoryGroup } from 'raiz/src/hooks/useCategoryGroup';
 
 export const CategoriesGroupView = () => {
 	const { data } = useCategoryGroup();
-
 	return (
 		<DataTableGrupoReceta
 			columns={columnsCategoryGroup}

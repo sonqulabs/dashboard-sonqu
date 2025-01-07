@@ -13,6 +13,10 @@ const sidebarNavItems = [
 		title: 'Grupos de Receta',
 		href: '/configuracion/grupoReceta',
 	},
+	{
+		title: 'Roles',
+		href: '/configuracion/roles',
+	},
 ];
 
 interface SettingsLayoutProps {
@@ -33,7 +37,7 @@ export default function SettingsLayout({ children }: SettingsLayoutProps) {
 				<aside className=" lg:w-1/5">
 					<SidebarNavConfig items={sidebarNavItems} />
 				</aside>
-				<div className="flex-1 lg:max-w-2xl">{children}</div>
+				<div className="flex-1 ">{children}</div>
 			</div>
 		</div>
 	);

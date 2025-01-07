@@ -21,13 +21,11 @@ import {
 	SelectValue,
 } from '@shadcnui/select';
 import { Loader2 } from 'lucide-react';
-import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
 import { Category, CategoryGroup } from 'raiz/src/common/interfaces/recetas';
-import { useState } from 'react';
+import { useCreateOrUpdateCategory } from 'raiz/src/hooks/useCategory';
+import { useCategoryGroup } from 'raiz/src/hooks/useCategoryGroup';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import useFetchData from 'raiz/src/hooks/useGroupRecipes';
 
 const formSchema = z.object({
 	name: z.string().min(2, {
@@ -45,18 +43,13 @@ export default function CategoryForm({
 	pageTitle: string;
 	buttonTitle: string;
 }) {
-	const { data: session } = useSession();
-	const router = useRouter();
-	const [isLoading, setIsLoading] = useState(false);
+	const { mutation } = useCreateOrUpdateCategory();
 
-	const { data } = useFetchData(
-		`${process.env.NEXT_PUBLIC_API_BACKEND}/category-group`,
-		session?.user?.token // Cambia la URL según lo que necesites
-	);
+	const { data } = useCategoryGroup();
 
 	const defaultValues = {
 		name: initialData?.name || '',
-		group: initialData?.group.id?.toString() || '',
+		group: (initialData?.group && initialData.group.id?.toString()) || '',
 	};
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -66,48 +59,15 @@ export default function CategoryForm({
 
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		try {
-			setIsLoading(true);
-
-			if (initialData) {
-				// Editar grupo de recetas existente
-				const { name, group } = values;
-				const formattedValues = {
-					name,
-					groupId: Number(group), // Convierte `group` a `number`
-				};
-				await fetch(
-					`${process.env.NEXT_PUBLIC_API_BACKEND}/category/${initialData.id}`,
-					{
-						method: 'PATCH',
-						body: JSON.stringify(formattedValues),
-						headers: {
-							'Content-Type': 'application/json',
-							Authorization: `Bearer ${session?.user?.token}`, // Asegúrate de manejar el token
-						},
-					}
-				);
-			} else {
-				// Crear nuevo grupo de recetas
-				const { name, group } = values;
-				const formattedValues = {
-					name,
-					groupId: Number(group), // Convierte `group` a `number`
-				};
-				await fetch(`${process.env.NEXT_PUBLIC_API_BACKEND}/category`, {
-					method: 'POST',
-					body: JSON.stringify(formattedValues),
-					headers: {
-						'Content-Type': 'application/json',
-						Authorization: `Bearer ${session?.user?.token}`, // Asegúrate de manejar el token
-					},
-				});
-			}
-
-			router.push('/recetas/categorias');
+			const id = initialData?.id?.toString();
+			const { name, group } = values;
+			const formattedValues = {
+				name,
+				groupId: Number(group),
+			};
+			await mutation.mutateAsync({ id, newCategory: formattedValues });
 		} catch (error) {
 			console.error('Error al enviar el formulario:', error);
-		} finally {
-			setIsLoading(false);
 		}
 	};
 
@@ -156,7 +116,7 @@ export default function CategoryForm({
 													return (
 														<SelectItem
 															key={item.id}
-															value={item.id.toString()}
+															value={item.id ? item.id.toString() : ''}
 														>
 															{item.name}
 														</SelectItem>
@@ -188,8 +148,8 @@ export default function CategoryForm({
 							/> */}
 						</div>
 
-						<Button type="submit" disabled={isLoading}>
-							{isLoading ? (
+						<Button type="submit" disabled={mutation.isPending}>
+							{mutation.isPending ? (
 								<span className="flex items-center gap-2">
 									{' '}
 									<Loader2 className="mr-2 h-5 w-5 animate-spin" />

@@ -1,21 +1,20 @@
 'use client';
 
+import { cn } from 'raiz/src/lib/utils';
 import { logout } from 'raiz/src/modules/login/actions/logout';
 
 interface LogoutButtonProps {
 	children?: React.ReactNode;
+	className?: string;
 }
 
-export const LogoutButton = ({ children }: LogoutButtonProps) => {
+export const LogoutButton = ({ children, className }: LogoutButtonProps) => {
 	const onClick = () => {
 		logout();
 	};
 
 	return (
-		<button
-			onClick={onClick}
-			className=" flex w-full items-center gap-2 justify-start bg-transparent  text-gray-900 hover:bg-transparent "
-		>
+		<button onClick={onClick} className={cn(className)}>
 			{children}
 		</button>
 	);

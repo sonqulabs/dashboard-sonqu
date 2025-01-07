@@ -1,8 +1,4 @@
 'use client';
-import * as z from 'zod';
-import { useState, useTransition } from 'react';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
 import {
 	Form,
 	FormControl,
@@ -11,14 +7,18 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@/common/components/shadcnui/form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { Eye, EyeOff, Loader2, LogIn } from 'lucide-react';
+import { useState, useTransition } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 
 import { Button } from '@/common/components/shadcnui/button';
-import { FormError } from './form-error';
-import { FormSuccess } from './form-exitoso';
-import { LoginSchema } from '../schemas';
 import { Input } from '@/common/components/shadcnui/input';
 import { Login } from '../actions/login';
+import { LoginSchema } from '../schemas';
+import { FormError } from './form-error';
+import { FormSuccess } from './form-exitoso';
 
 type ProductFormValues = z.infer<typeof LoginSchema>;
 
@@ -28,6 +28,9 @@ export function UserAuthForm() {
 	const [error, setError] = useState<string | undefined>('');
 	const [success, setSuccess] = useState<string | undefined>('');
 
+	// const router = useRouter();
+	// const { status } = useSession();
+
 	const form = useForm<ProductFormValues>({
 		resolver: zodResolver(LoginSchema),
 		defaultValues: {
@@ -35,6 +38,19 @@ export function UserAuthForm() {
 			passwords: '',
 		},
 	});
+
+	// useEffect(() => {
+	// 	if (status === 'authenticated') {
+	// 		// Redirige a '/usuarios' si ya está autenticado
+	// 		router.replace('/usuarios');
+	// 		router.refresh();
+	// 	}
+	// }, [status, router]);
+
+	// // Retorna null si está autenticado para evitar mostrar el formulario
+	// if (status === 'authenticated') {
+	// 	return null;
+	// }
 
 	const onSubmit = async (data: ProductFormValues) => {
 		setError('');
@@ -70,7 +86,7 @@ export function UserAuthForm() {
 								name="email"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Correo Eletrónico</FormLabel>
+										<FormLabel>Email o Celular</FormLabel>
 										<FormControl>
 											<Input
 												type="text"

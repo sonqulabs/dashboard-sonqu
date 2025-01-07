@@ -6,7 +6,6 @@ import { useCategory } from 'raiz/src/hooks/useCategory';
 
 export const CategoriesView = () => {
 	const { data } = useCategory();
-	console.log('asdsadas:', data);
 	return (
 		<div className="container mx-auto py-10">
 			<Heading title={`Lista de categorías (${data.length})`} />

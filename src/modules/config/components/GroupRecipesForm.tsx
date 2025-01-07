@@ -13,16 +13,12 @@ import {
 	FormMessage,
 } from '@shadcnui/form';
 import { Input } from '@shadcnui/input';
+import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { CategoryGroup } from 'raiz/src/common/interfaces/recetas';
+import { useCreateOrUpdateCategoryGroup } from 'raiz/src/hooks/useCategoryGroup';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
-import { CategoryGroup } from 'raiz/src/common/interfaces/recetas';
-import { useRouter } from 'next/navigation';
-import { Loader2 } from 'lucide-react';
-import { useMutation } from '@tanstack/react-query';
-import {
-	createCategoryGroupFunction,
-	updateCategoryGroupFunction,
-} from 'raiz/src/common/api/categoryGroup';
 const formSchema = z.object({
 	name: z.string().min(2, {
 		message: 'Product name must be at least 2 characters.',
@@ -39,6 +35,8 @@ export default function GroupRecipesForm({
 	buttonTitle: string;
 }) {
 	const router = useRouter();
+	const { mutation } = useCreateOrUpdateCategoryGroup();
+
 	const defaultValues = {
 		name: initialData?.name || '',
 	};
@@ -48,33 +46,11 @@ export default function GroupRecipesForm({
 		values: defaultValues,
 	});
 
-	// Manejo de mutaciones
-	const mutation = useMutation({
-		mutationFn: async (data: {
-			id?: number;
-			newCategoryGroup: Omit<CategoryGroup, 'id'>;
-		}) => {
-			if (data.id) {
-				return await updateCategoryGroupFunction(
-					data.id,
-					data.newCategoryGroup
-				);
-			} else {
-				return await createCategoryGroupFunction(data.newCategoryGroup);
-			}
-		},
-		onSuccess: () => {
-			router.push('/configuracion/grupoReceta');
-		},
-		onError: (error) => {
-			console.error('Error al crear o editar el grupo de categoría:', error);
-		},
-	});
-
 	const onSubmit = async (values: z.infer<typeof formSchema>) => {
 		try {
-			const id = initialData?.id; // ID solo se toma si hay datos iniciales
-			await mutation.mutateAsync({ id, newCategoryGroup: values });
+			const id = initialData?.id?.toString();
+
+			await mutation.mutateAsync({ id, newCategory: values });
 		} catch (error) {
 			console.error('Error al enviar el formulario:', error);
 		}

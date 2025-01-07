@@ -1,37 +1,55 @@
 import { CategoryGroup } from '../interfaces/recetas';
-import HttpRequest from './http-request.service';
+import { httpsRequest } from './http-request.service';
 
-class CategoryGroupService extends HttpRequest {
-	constructor() {
-		// Inicia HttpRequest con el microservicio específico "usuarios"
-		super('categoryGroup');
-	}
+export const CategoryGroupService = () => {
+	const {
+		get,
+		post,
+		put,
+		delete: deleteRequest,
+		configRequest,
+	} = httpsRequest();
 
-	// Métodos CRUD para el recurso CategoryGroup
-	public async getCategoryGroup(): Promise<CategoryGroup[]> {
-		return this.get<CategoryGroup[]>('category-group'); // Usa el endpoint para obtener lista de usuarios
-	}
+	const getCategoryGroup = async (): Promise<CategoryGroup[]> => {
+		configRequest({ endpoint: 'category-group' });
+		const res = await get<CategoryGroup[]>();
+		return res;
+	};
+	const getCategoryGroupById = async (id: string): Promise<CategoryGroup> => {
+		configRequest({ endpoint: `category-group/${id}` });
+		const res = await get<CategoryGroup>();
+		return res;
+	};
 
-	public async getCategoryGroupById(id: string): Promise<CategoryGroup> {
-		return this.get<CategoryGroup>(`category-group/${id}`); // Usa el endpoint para obtener un usuario por ID
-	}
+	const createCategoryGroup = async (
+		data: CategoryGroup
+	): Promise<CategoryGroup> => {
+		configRequest({ endpoint: 'category-group' });
+		const res = await post<CategoryGroup>(data);
+		console.log(res);
 
-	public async createCategoryGroup(
-		data: Omit<CategoryGroup, 'id'>
-	): Promise<CategoryGroup> {
-		return this.post<CategoryGroup>('category-group', data); // Usa el endpoint para crear un nuevo usuario
-	}
+		return res;
+	};
+	const updateCategoryGroup = async (
+		data: CategoryGroup,
+		id: string
+	): Promise<CategoryGroup> => {
+		configRequest({ endpoint: `category-group/${id}` });
+		const res = await put<CategoryGroup>(data);
+		console.log(res);
 
-	public async updateCategoryGroup(
-		id: number,
-		data: Partial<CategoryGroup>
-	): Promise<CategoryGroup> {
-		return this.put<CategoryGroup>(`category-group/${id}`, data); // Usa el endpoint para actualizar un usuario
-	}
+		return res;
+	};
+	const deleteCategoryGroup = async (id: string): Promise<void> => {
+		configRequest({ endpoint: `category-group/${id}` });
+		await deleteRequest();
+	};
 
-	public async deleteCategoryGroup(id: number): Promise<void> {
-		return this.delete<void>(`category-group/${id}`); // Usa el endpoint para eliminar un usuario
-	}
-}
-
-export default CategoryGroupService;
+	return {
+		getCategoryGroup,
+		createCategoryGroup,
+		updateCategoryGroup,
+		deleteCategoryGroup,
+		getCategoryGroupById,
+	};
+};

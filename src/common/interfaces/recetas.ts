@@ -1,10 +1,11 @@
 export type Category = {
-	id: number;
+	id?: number;
 	name: string;
-	group: {
+	group?: {
 		name?: string;
 		id?: number;
 	};
+	groupId?: number;
 };
 export type CategoryGroup = {
 	id?: number;

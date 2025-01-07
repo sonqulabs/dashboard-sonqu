@@ -17,20 +17,20 @@ export const navItems: NavItem[] = [
 	},
 
 	{
-		title: 'Sonqu website',
+		title: 'Recetas Sonqu',
 		url: '#', // Placeholder as there is no direct link for the parent
-		icon: 'billing',
+		icon: 'web',
 		isActive: true,
 
 		items: [
 			{
-				title: 'Recetas Pendientes',
+				title: 'Pendientes',
 				url: '/dashboard/profile',
 				icon: 'userPen',
 			},
 			{
-				title: 'Recetas ',
-				url: '/',
+				title: 'Lista Total',
+				url: '/recetas/lista-recetas',
 				icon: 'login',
 			},
 			{

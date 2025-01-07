@@ -11,18 +11,3 @@ export interface NavItem {
 	isActive?: boolean;
 	items?: NavItem[];
 }
-
-export type User = {
-	photo_url?: string;
-	name: string;
-	created_at?: string;
-	id: number;
-	updated_at?: string;
-	role?: string;
-	cel: string;
-	password?: string;
-	active: boolean;
-	email: string;
-	username?: string;
-	roleId?: string;
-};

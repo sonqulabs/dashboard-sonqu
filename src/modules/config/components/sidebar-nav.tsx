@@ -34,7 +34,7 @@ export function SidebarNavConfig({
 					href={item.href}
 					className={cn(
 						buttonVariants({ variant: 'ghost' }),
-						pathname === item.href
+						pathname.includes(item.href)
 							? 'bg-muted hover:bg-muted'
 							: 'hover:bg-transparent hover:underline',
 						'justify-start'

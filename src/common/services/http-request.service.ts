@@ -1,87 +1,80 @@
-import Cookies from 'js-cookie';
-import { TOKEN_NAME, IS_DEVELOP } from '@constants/services.constant';
-import { BASE_MICROSERVICE } from '@constants/microservices.constant';
+import { getSession } from 'next-auth/react';
 
-// const DOMAIN = 'sonqu';
-
-type Headers = Record<string, string>;
-
-interface RequestOptions {
-	method: string;
-	headers?: Headers;
-	body?: string;
+// Definimos una enumeración para las versiones de los endpoints
+enum ENDPOINT_VERSION {
+	v1 = 'v1',
+	v2 = 'v2',
 }
 
-export default class HttpRequest {
-	private baseURL: string;
-
-	constructor(
-		private microservice: string = BASE_MICROSERVICE,
-		private version: string = 'v1',
-		private headers: Headers = { 'Content-Type': 'application/json' }
-	) {
-		const port = IS_DEVELOP ? ':3004' : '';
-		this.baseURL = `https://${this.microservice}${port}/api/${this.version}`;
-	}
-
-	// Método para agregar token de autorización
-	private useToken() {
-		const token = Cookies.get('tokenAuth');
-		if (token) {
-			this.headers['Authorization'] = `Bearer ${token}`;
-		}
-	}
-
-	// Método genérico de petición
-	private async request<T>(
-		endpoint: string,
-		options: RequestOptions
-	): Promise<T> {
-		this.useToken();
-
-		try {
-			const response = await fetch(
-				`${process.env.NEXT_PUBLIC_API_LOCALHOST}/${endpoint}`,
-				{
-					...options,
-					headers: this.headers,
-				}
-			);
-
-			if (!response.ok) {
-				const errorDetails = await response.json(); // Obtener detalles del error
-				throw new Error(
-					`HTTP error! status: ${response.status}, message: ${errorDetails.message}`
-				);
-			}
-
-			return await response.json();
-		} catch (error) {
-			console.error('Fetch error:', error);
-			throw error; // Lanzar el error para ser manejado más arriba
-		}
-	}
-
-	// Métodos CRUD
-	public get<T>(endpoint: string): Promise<T> {
-		return this.request<T>(endpoint, { method: 'GET' });
-	}
-
-	public post<T>(endpoint: string, data: unknown): Promise<T> {
-		return this.request<T>(endpoint, {
-			method: 'POST',
-			body: JSON.stringify(data),
-		});
-	}
-
-	public put<T>(endpoint: string, data: unknown): Promise<T> {
-		return this.request<T>(endpoint, {
-			method: 'PATCH',
-			body: JSON.stringify(data),
-		});
-	}
-
-	public delete<T>(endpoint: string): Promise<T> {
-		return this.request<T>(endpoint, { method: 'DELETE' });
-	}
+// Definimos el tipo para los parámetros del request HTTP
+interface HttpRequestParam {
+	version?: ENDPOINT_VERSION; // Usamos directamente el tipo del enum
+	endpoint: string;
+	headers?: Record<string, string>;
 }
+
+// Función principal para manejar las solicitudes HTTP
+export const httpsRequest = () => {
+	let endpoint = '';
+	let version: ENDPOINT_VERSION; // Declaramos la variable sin inicializar
+	const defaultHeaders: Record<string, string> = {
+		'Content-Type': 'application/json',
+		Authorization: '', // Inicializamos el encabezado Authorization vacío
+	};
+
+	// Función para agregar el token al encabezado Authorization
+	const addTokenHeaders = async () => {
+		const session = await getSession();
+		if (session?.user.token) {
+			defaultHeaders.Authorization = `Bearer ${session.user.token}`;
+		}
+	};
+
+	// Función para configurar los parámetros del request
+	const configRequest = (param: HttpRequestParam) => {
+		endpoint = param.endpoint;
+		version = param.version ?? ENDPOINT_VERSION.v1; // Asignamos la versión, usando v1 como valor por defecto
+		if (param.headers) {
+			Object.assign(defaultHeaders, param.headers); // Combina encabezados
+		}
+	};
+
+	// Construye la URL del endpoint
+	const urlBuilder = () => `http://localhost:3004/api/${version}/${endpoint}`; // Usamos la versión del endpoint
+
+	// Función auxiliar para manejar las solicitudes
+	const request = async <T>(
+		method: 'GET' | 'POST' | 'PATCH' | 'DELETE',
+		body?: T
+	): Promise<T> => {
+		await addTokenHeaders(); // Aseguramos que los encabezados estén actualizados
+
+		const response = await fetch(urlBuilder(), {
+			method,
+			headers: defaultHeaders,
+			body: body ? JSON.stringify(body) : undefined, // Convertimos el cuerpo a JSON solo si está presente
+		});
+
+		if (!response.ok) {
+			throw new Error(`Error: ${response.status} - ${response.statusText}`);
+		}
+
+		return response.json(); // Retornamos el cuerpo de la respuesta en formato JSON
+	};
+
+	// Funciones específicas para cada tipo de petición
+	const get = async <T>(): Promise<T> => request('GET');
+	const post = async <T>(body: T): Promise<T> => request('POST', body);
+	const put = async <T>(body: T): Promise<T> => request('PATCH', body);
+	// const deleteRequest = async (): Promise<void> => request('DELETE'); // Para DELETE no necesitamos un cuerpo
+	const deleteRequest = async <T>(body?: T): Promise<T> =>
+		request('DELETE', body); // Cambié el tipo de retorno a T
+
+	return {
+		configRequest,
+		get,
+		post,
+		put,
+		delete: deleteRequest, // Renombramos deleteRequest a delete para ser más intuitivo
+	};
+};

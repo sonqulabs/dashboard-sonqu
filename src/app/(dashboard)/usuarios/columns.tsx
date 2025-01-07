@@ -1,15 +1,18 @@
 'use client';
 import { Checkbox } from '@shadcnui/checkbox';
-import { User } from '@/common/interfaces/index';
 import { ColumnDef } from '@tanstack/react-table';
-import { CellAction } from './cell-action';
+import { User } from 'raiz/src/common/interfaces/configuracion';
+import { CellAction } from 'raiz/src/modules/users/components/cell-action';
 
-export const columns: ColumnDef<User>[] = [
+export const columnsUser: ColumnDef<User>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
 			<Checkbox
-				checked={table.getIsAllPageRowsSelected()}
+				checked={
+					table.getIsAllPageRowsSelected() ||
+					(table.getIsSomePageRowsSelected() && 'indeterminate')
+				}
 				onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
 				aria-label="Select all"
 			/>
@@ -29,7 +32,7 @@ export const columns: ColumnDef<User>[] = [
 		header: 'NOMBRE',
 	},
 	{
-		accessorKey: 'cel',
+		accessorKey: 'phone',
 		header: 'CELULAR',
 	},
 	{
@@ -38,10 +41,12 @@ export const columns: ColumnDef<User>[] = [
 	},
 	{
 		accessorKey: 'role',
-		header: 'ROL',
+		header: () => <div>ROLE</div>,
+		cell: ({ row }) => <div>{row.original.role?.name}</div>,
 	},
+
 	{
-		accessorKey: 'active',
+		accessorKey: 'state',
 		header: 'ESTADO',
 	},
 	{
