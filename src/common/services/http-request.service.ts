@@ -40,7 +40,10 @@ export const httpsRequest = () => {
 	};
 
 	// Construye la URL del endpoint
-	const urlBuilder = () => `http://localhost:3004/api/${version}/${endpoint}`; // Usamos la versión del endpoint
+	// Usamos la versión del endpoint
+	// const urlBuilder = () => `http://localhost:3004/api/${version}/${endpoint}`;
+	const urlBuilder = () =>
+		`https://backend-sonqu-production.up.railway.app/api/${version}/${endpoint}`;
 
 	// Función auxiliar para manejar las solicitudes
 	const request = async <T>(

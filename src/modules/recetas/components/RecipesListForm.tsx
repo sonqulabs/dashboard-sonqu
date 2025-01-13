@@ -24,9 +24,19 @@ import { CloudUpload } from 'lucide-react';
 import Image from 'next/image';
 import { Input } from 'raiz/src/common/components/shadcnui/input';
 import { useState } from 'react';
-import { toast } from 'sonner';
+// import { toast } from 'sonner';
 import RichTextEditor from './TextEditor';
 import { Textarea } from '@shadcnui/textarea';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@shadcnui/select';
+import { useCategory } from 'raiz/src/hooks/useCategory';
+import { Category } from 'raiz/src/common/interfaces/recetas';
+import { useCreateOrUpdateRecipe } from 'raiz/src/hooks/use-recipes';
 
 const formSchema = z.object({
 	ingredients: z.string().min(2, {
@@ -37,6 +47,9 @@ const formSchema = z.object({
 	}),
 	description: z.string(),
 	title: z.string(),
+	videoUrl: z.string(),
+	prepTime: z.string(),
+	category: z.string(),
 	image: z
 		.array(
 			z.instanceof(File).refine((file) => file.size < 4 * 1024 * 1024, {
@@ -51,7 +64,8 @@ const formSchema = z.object({
 
 export default function RecipesListForm() {
 	const [files, setFiles] = useState<File[] | null>(null);
-
+	const { data } = useCategory();
+	const { mutation } = useCreateOrUpdateRecipe();
 	const dropZoneConfig = {
 		maxFiles: 1,
 		maxSize: 1024 * 1024 * 4,
@@ -61,39 +75,57 @@ export default function RecipesListForm() {
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
-			instruction: '',
 			ingredients: '',
 			title: '',
+			videoUrl: '',
+			prepTime: '',
+			category: '',
 			description: '',
 			image: null,
 		},
 	});
 
-	function onSubmit(values: z.infer<typeof formSchema>) {
-		const formData = new FormData();
+	async function onSubmit(values: z.infer<typeof formSchema>) {
+		try {
+			const formData = new FormData();
 
-		formData.append('ingredients', values.ingredients);
-		formData.append('instruction', values.instruction);
-		formData.append('title', values.title);
-		formData.append('description', values.description);
+			// Agrega todos los valores del formulario
+			formData.append('ingredients', values.ingredients);
+			formData.append('instruction', values.instruction);
+			formData.append('title', values.title);
+			formData.append('description', values.description);
+			formData.append('prepTime', values.prepTime);
+			formData.append('videoUrl', values.videoUrl);
+			formData.append('category', values.category);
 
-		if (files) {
-			files.forEach((file, index) => {
-				formData.append(`image[${index}]`, file);
-			});
+			// Adjunta los archivos si están definidos
+			if (files) {
+				files.forEach((file, index) => {
+					formData.append(`image[${index}]`, file);
+				});
+			}
+
+			// Debug: Mostrar el contenido de FormData
+			for (const pair of formData.entries()) {
+				console.log(`${pair[0]}:`, pair[1]);
+			}
+
+			// Enviar el formulario usando la mutación
+			await mutation.mutateAsync(formData);
+
+			// Mensaje de éxito
+			console.log('Formulario enviado con éxito');
+		} catch (error) {
+			console.error('Error al enviar el formulario:', error);
 		}
 
-		// Mostrar el contenido de FormData
-		for (const pair of formData.entries()) {
-			console.log(`${pair[0]}:`, pair[1]);
-		}
-		toast.message('Event has been created', {
-			description: (
-				<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-					<code className="text-white">{JSON.stringify(values, null, 2)}</code>
-				</pre>
-			),
-		});
+		// toast.message('Event has been created', {
+		// 	description: (
+		// 		<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+		// 			<code className="text-white">{JSON.stringify(values, null, 2)}</code>
+		// 		</pre>
+		// 	),
+		// });
 	}
 
 	return (
@@ -111,7 +143,7 @@ export default function RecipesListForm() {
 								<FormLabel>Título</FormLabel>
 								<FormControl>
 									<Input
-										placeholder="Escriba su nombre y apellido"
+										placeholder="Escriba el título de la receta"
 										{...field}
 									/>
 								</FormControl>
@@ -131,6 +163,65 @@ export default function RecipesListForm() {
 										className="resize-none"
 										{...field}
 									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="category"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Categorías</FormLabel>
+								<Select
+									onValueChange={field.onChange}
+									defaultValue={field.value}
+								>
+									<FormControl>
+										<SelectTrigger>
+											<SelectValue placeholder="Seleccione una" />
+										</SelectTrigger>
+									</FormControl>
+									<SelectContent>
+										{data?.map((item: Category) => {
+											return (
+												<SelectItem
+													key={item.id}
+													value={item.id ? item.id.toString() : ''}
+												>
+													{item.name}
+												</SelectItem>
+											);
+										})}
+									</SelectContent>
+								</Select>
+
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="prepTime"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Tiempo de preparación</FormLabel>
+								<FormControl>
+									<Input placeholder="Escriba el tiempo" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="videoUrl"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Url Youtube</FormLabel>
+								<FormControl>
+									<Input placeholder="Escriba o pegue una url" {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -225,6 +316,7 @@ export default function RecipesListForm() {
 							</FormItem>
 						)}
 					/>
+
 					<Button type="submit">Submit</Button>
 				</form>
 			</Form>

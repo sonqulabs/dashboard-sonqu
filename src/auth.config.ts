@@ -7,7 +7,7 @@ export default {
 		CredentialsProvider({
 			async authorize(credentials) {
 				const authResponse = await fetch(
-					`${process.env.API_LOCALHOST}/auth/login`,
+					`${process.env.NEXT_PUBLIC_API_BACKEND}/auth/login`,
 					{
 						method: 'POST',
 						headers: {
