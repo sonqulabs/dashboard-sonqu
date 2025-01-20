@@ -29,27 +29,42 @@ export const useRecipeById = (id: string, title: boolean) => {
 	return { data, isLoading, isError };
 };
 
-export const useCreateOrUpdateRecipe = () => {
+// export const useCreateOrUpdateRecipe = () => {
+// 	const router = useRouter();
+
+// 	const mutation = useMutation({
+// 		mutationFn: async (data: {
+// 			id?: string;
+// 			newCategory: Omit<Recipes, 'id'>;
+// 		}) => {
+// 			if (data.id) {
+// 				return await updateRecipe(data.newCategory, data.id);
+// 			} else {
+// 				return await createRecipe(data.newCategory);
+// 			}
+// 		},
+// 		onSuccess: () => {
+// 			router.push('/recetas/lista-recetas');
+// 		},
+// 		onError: (error) => {
+// 			console.error('Error al crear o editar el grupo de categoría:', error);
+// 		},
+// 	});
+
+// 	return { mutation };
+// };
+export const useCreateRecipe = () => {
 	const router = useRouter();
 
 	const mutation = useMutation({
-		mutationFn: async (data: {
-			id?: string;
-			newCategory: Omit<Recipes, 'id'>;
-		}) => {
-			if (data.id) {
-				// Actualiza la categoría si hay un ID
-				return await updateRecipe(data.newCategory, data.id);
-			} else {
-				// Crea una nueva categoría si no hay ID
-				return await createRecipe(data.newCategory);
-			}
+		mutationFn: async (data: FormData) => {
+			return await createRecipe(data);
 		},
 		onSuccess: () => {
 			router.push('/recetas/lista-recetas');
 		},
 		onError: (error) => {
-			console.error('Error al crear o editar el grupo de categoría:', error);
+			console.error('Error al crear la receta:', error);
 		},
 	});
 

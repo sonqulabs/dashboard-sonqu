@@ -40,8 +40,6 @@ export const httpsRequest = () => {
 	};
 
 	// Construye la URL del endpoint
-	// Usamos la versión del endpoint
-	// const urlBuilder = () => `http://localhost:3004/api/${version}/${endpoint}`;
 	const urlBuilder = () =>
 		`https://backend-sonqu-production.up.railway.app/api/${version}/${endpoint}`;
 
@@ -52,10 +50,20 @@ export const httpsRequest = () => {
 	): Promise<T> => {
 		await addTokenHeaders(); // Aseguramos que los encabezados estén actualizados
 
+		// Si el cuerpo es FormData, dejamos que el navegador maneje el Content-Type y el boundary
+		if (body instanceof FormData) {
+			// No es necesario modificar Content-Type, el navegador lo hace automáticamente
+			delete defaultHeaders['Content-Type'];
+		}
+		// Si no es FormData, aseguramos que el Content-Type sea 'application/json'
+		else if (body) {
+			defaultHeaders['Content-Type'] = 'application/json';
+		}
+
 		const response = await fetch(urlBuilder(), {
 			method,
 			headers: defaultHeaders,
-			body: body ? JSON.stringify(body) : undefined, // Convertimos el cuerpo a JSON solo si está presente
+			body: body instanceof FormData ? body : JSON.stringify(body), // Si es FormData, pasamos el FormData tal cual, sino lo convertimos a JSON
 		});
 
 		if (!response.ok) {
@@ -69,7 +77,6 @@ export const httpsRequest = () => {
 	const get = async <T>(): Promise<T> => request('GET');
 	const post = async <T>(body: T): Promise<T> => request('POST', body);
 	const put = async <T>(body: T): Promise<T> => request('PATCH', body);
-	// const deleteRequest = async (): Promise<void> => request('DELETE'); // Para DELETE no necesitamos un cuerpo
 	const deleteRequest = async <T>(body?: T): Promise<T> =>
 		request('DELETE', body); // Cambié el tipo de retorno a T
 

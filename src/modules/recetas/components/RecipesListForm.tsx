@@ -35,29 +35,34 @@ import {
 	SelectValue,
 } from '@shadcnui/select';
 import { useCategory } from 'raiz/src/hooks/useCategory';
-import { Category } from 'raiz/src/common/interfaces/recetas';
-import { useCreateOrUpdateRecipe } from 'raiz/src/hooks/use-recipes';
-
+import { useCreateRecipe } from 'raiz/src/hooks/use-recipes';
+import { MultiSelect } from './Multiselect';
+import { toast } from 'sonner';
 const formSchema = z.object({
 	ingredients: z.string().min(2, {
 		message: 'about must be at least 2 characters.',
 	}),
-	instruction: z.string().min(2, {
+	instructions: z.string().min(2, {
 		message: 'about must be at least 2 characters.',
 	}),
+	servings: z.string(),
 	description: z.string(),
 	title: z.string(),
 	videoUrl: z.string(),
 	prepTime: z.string(),
-	category: z.string(),
+	difficulty: z.string(),
+	categories: z
+		.array(z.string().min(1))
+		.min(1)
+		.nonempty('Please select at least one framework.'),
 	image: z
 		.array(
 			z.instanceof(File).refine((file) => file.size < 4 * 1024 * 1024, {
 				message: 'File size must be less than 4MB',
 			})
 		)
-		.max(5, {
-			message: 'Maximum 5 files are allowed',
+		.max(1, {
+			message: 'Maximum 1 files are allowed',
 		})
 		.nullable(),
 });
@@ -65,43 +70,64 @@ const formSchema = z.object({
 export default function RecipesListForm() {
 	const [files, setFiles] = useState<File[] | null>(null);
 	const { data } = useCategory();
-	const { mutation } = useCreateOrUpdateRecipe();
+	const { mutation } = useCreateRecipe();
 	const dropZoneConfig = {
 		maxFiles: 1,
 		maxSize: 1024 * 1024 * 4,
 		multiple: false,
 	};
 
+	const dificultadData = [
+		{ label: 'facil' },
+		{ label: 'medio' },
+		{ label: 'difícil' },
+	];
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
 			ingredients: '',
+			instructions: '',
 			title: '',
 			videoUrl: '',
+			servings: '',
+			difficulty: '',
 			prepTime: '',
-			category: '',
 			description: '',
 			image: null,
+			categories: [],
 		},
 	});
 
 	async function onSubmit(values: z.infer<typeof formSchema>) {
 		try {
+			console.log('data zod:', values);
 			const formData = new FormData();
 
-			// Agrega todos los valores del formulario
-			formData.append('ingredients', values.ingredients);
-			formData.append('instruction', values.instruction);
+			// Agregar los campos al FormData
 			formData.append('title', values.title);
 			formData.append('description', values.description);
-			formData.append('prepTime', values.prepTime);
+			formData.append('ingredients', values.ingredients);
+			formData.append('instructions', values.instructions);
 			formData.append('videoUrl', values.videoUrl);
-			formData.append('category', values.category);
+			formData.append('prepTime', values.prepTime);
+			formData.append('servings', values.servings);
+			formData.append('difficulty', values.difficulty);
 
-			// Adjunta los archivos si están definidos
-			if (files) {
-				files.forEach((file, index) => {
-					formData.append(`image[${index}]`, file);
+			// Agregar las categorías si existen
+			if (Array.isArray(values.categories)) {
+				values.categories.forEach((category, index) => {
+					formData.append(`categories[${index}]`, category);
+				});
+			}
+
+			// Agregar la imagen si existe
+			if (values.image instanceof File) {
+				formData.append('image', values.image);
+			}
+			// Si tienes un array de archivos (File[])
+			if (Array.isArray(values.image) && values.image.length > 0) {
+				values.image.forEach((file) => {
+					formData.append(`image`, file); // Añadir cada archivo al FormData
 				});
 			}
 
@@ -112,20 +138,18 @@ export default function RecipesListForm() {
 
 			// Enviar el formulario usando la mutación
 			await mutation.mutateAsync(formData);
-
 			// Mensaje de éxito
-			console.log('Formulario enviado con éxito');
 		} catch (error) {
 			console.error('Error al enviar el formulario:', error);
 		}
 
-		// toast.message('Event has been created', {
-		// 	description: (
-		// 		<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-		// 			<code className="text-white">{JSON.stringify(values, null, 2)}</code>
-		// 		</pre>
-		// 	),
-		// });
+		toast.message('Event has been created', {
+			description: (
+				<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+					<code className="text-white">{JSON.stringify(values, null, 2)}</code>
+				</pre>
+			),
+		});
 	}
 
 	return (
@@ -153,6 +177,47 @@ export default function RecipesListForm() {
 					/>
 					<FormField
 						control={form.control}
+						name="categories"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Categories</FormLabel>
+								<FormControl>
+									<MultiSelect
+										options={data
+											.filter((category) => category.id !== undefined) // Filtra solo los que tienen `id`
+											.map((category) => ({
+												value: category.id!.toString(), // Usa `id` con seguridad (ya está filtrado)
+												label: category.name,
+											}))}
+										onValueChange={field.onChange}
+										value={field.value}
+									/>
+								</FormControl>
+								<FormDescription>
+									Choose the frameworks you are interested in.
+								</FormDescription>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="servings"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Cantidad de personas</FormLabel>
+								<FormControl>
+									<Input
+										placeholder="Escriba cuantos pueden comer"
+										{...field}
+									/>
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
 						name="description"
 						render={({ field }) => (
 							<FormItem>
@@ -170,7 +235,7 @@ export default function RecipesListForm() {
 					/>
 					<FormField
 						control={form.control}
-						name="category"
+						name="difficulty"
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>Categorías</FormLabel>
@@ -184,13 +249,10 @@ export default function RecipesListForm() {
 										</SelectTrigger>
 									</FormControl>
 									<SelectContent>
-										{data?.map((item: Category) => {
+										{dificultadData?.map((item) => {
 											return (
-												<SelectItem
-													key={item.id}
-													value={item.id ? item.id.toString() : ''}
-												>
-													{item.name}
+												<SelectItem key={item.label} value={item.label}>
+													{item.label}
 												</SelectItem>
 											);
 										})}
@@ -302,7 +364,7 @@ export default function RecipesListForm() {
 					/>
 					<FormField
 						control={form.control}
-						name="instruction"
+						name="instructions"
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>Instrucciones</FormLabel>

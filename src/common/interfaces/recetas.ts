@@ -16,11 +16,12 @@ export type Recipes = {
 	id?: number;
 	title: string;
 	description: string;
-	imageUrl: File;
+	image: File;
 	videoUrl?: string;
 	prepTime?: number;
 	servings?: number;
 	difficulty?: string;
 	ingredients?: string;
-	category?: string;
+	instructions?: string;
+	categories?: string[];
 };
