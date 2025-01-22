@@ -37,7 +37,8 @@ import {
 import { useCategory } from 'raiz/src/hooks/useCategory';
 import { useCreateRecipe } from 'raiz/src/hooks/use-recipes';
 import { MultiSelect } from './Multiselect';
-import { toast } from 'sonner';
+// import { toast } from 'sonner';
+import { Heading } from 'raiz/src/common/components/customize/Heading';
 const formSchema = z.object({
 	ingredients: z.string().min(2, {
 		message: 'about must be at least 2 characters.',
@@ -51,10 +52,8 @@ const formSchema = z.object({
 	videoUrl: z.string(),
 	prepTime: z.string(),
 	difficulty: z.string(),
-	categories: z
-		.array(z.string().min(1))
-		.min(1)
-		.nonempty('Please select at least one framework.'),
+	categories: z.array(z.string().min(1)).min(1),
+	// .nonempty('Please select at least one framework.'),
 	image: z
 		.array(
 			z.instanceof(File).refine((file) => file.size < 4 * 1024 * 1024, {
@@ -143,22 +142,23 @@ export default function RecipesListForm() {
 			console.error('Error al enviar el formulario:', error);
 		}
 
-		toast.message('Event has been created', {
-			description: (
-				<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-					<code className="text-white">{JSON.stringify(values, null, 2)}</code>
-				</pre>
-			),
-		});
+		// toast.message('Event has been created', {
+		// 	description: (
+		// 		<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+		// 			<code className="text-white">{JSON.stringify(values, null, 2)}</code>
+		// 		</pre>
+		// 	),
+		// });
 	}
 
 	return (
-		<div className="w-full h-screen mx-auto space-y-20 max-w-[800px]">
-			<h1 className="flex justify-center  text-2xl font-medium">
-				Formulario para crear recetas
-			</h1>
+		<div className="w-full h-screen mx-auto space-y-8 my-10">
+			<Heading title={`Crear una receta`} />
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+				<form
+					onSubmit={form.handleSubmit(onSubmit)}
+					className="grid grid-cols-1 lg:grid-cols-2 gap-8 "
+				>
 					<FormField
 						control={form.control}
 						name="title"
@@ -193,9 +193,6 @@ export default function RecipesListForm() {
 										value={field.value}
 									/>
 								</FormControl>
-								<FormDescription>
-									Choose the frameworks you are interested in.
-								</FormDescription>
 								<FormMessage />
 							</FormItem>
 						)}
@@ -216,29 +213,13 @@ export default function RecipesListForm() {
 							</FormItem>
 						)}
 					/>
-					<FormField
-						control={form.control}
-						name="description"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Descripcion</FormLabel>
-								<FormControl>
-									<Textarea
-										placeholder="Escriba una descripcion"
-										className="resize-none"
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+
 					<FormField
 						control={form.control}
 						name="difficulty"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Categorías</FormLabel>
+								<FormLabel>Dificultad</FormLabel>
 								<Select
 									onValueChange={field.onChange}
 									defaultValue={field.value}
@@ -284,6 +265,23 @@ export default function RecipesListForm() {
 								<FormLabel>Url Youtube</FormLabel>
 								<FormControl>
 									<Input placeholder="Escriba o pegue una url" {...field} />
+								</FormControl>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={form.control}
+						name="description"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>Descripcion</FormLabel>
+								<FormControl>
+									<Textarea
+										placeholder="Escriba una descripcion"
+										className="resize-none"
+										{...field}
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -379,7 +377,9 @@ export default function RecipesListForm() {
 						)}
 					/>
 
-					<Button type="submit">Submit</Button>
+					<Button type="submit" className="mb-6">
+						Submit
+					</Button>
 				</form>
 			</Form>
 		</div>
