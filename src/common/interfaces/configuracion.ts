@@ -20,12 +20,12 @@ export type User = {
 	photo_url?: string;
 	name?: string;
 	created_at?: string;
-	id?: number;
+	id?: number | string;
 	updated_at?: string;
 	role?: RoleBasicInfo;
 	phone: string;
 	password?: string;
-	state: string;
+	state?: string;
 	email?: string | null;
 	username?: string;
 };

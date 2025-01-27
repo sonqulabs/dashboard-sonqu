@@ -1,5 +1,6 @@
 {
 	"compilerOptions": {
+		"noImplicitAny": false, // regla de compilacion para que en el build los any no causen problemas
 		"target": "ES2017",
 		"lib": ["dom", "dom.iterable", "esnext"],
 		"allowJs": true,

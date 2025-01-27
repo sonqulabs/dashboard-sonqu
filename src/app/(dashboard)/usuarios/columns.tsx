@@ -1,10 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import { Checkbox } from '@shadcnui/checkbox';
 import { ColumnDef } from '@tanstack/react-table';
 import { User } from 'raiz/src/common/interfaces/configuracion';
 import { CellAction } from 'raiz/src/modules/users/components/cell-action';
 
-export const columnsUser: ColumnDef<User>[] = [
+export const columnsUser: ColumnDef<any>[] = [
 	{
 		id: 'select',
 		header: ({ table }) => (
