@@ -1,9 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
-import { Recipes } from '../common/interfaces/recetas';
 import { RecipesService } from '../common/services/recipes.service';
 
-const { getRecipes, getRecipeById, createRecipe, updateRecipe, deleteRecipe } =
+const { getRecipes, getRecipeById, createRecipe, deleteRecipe } =
 	RecipesService();
 
 export const useRecipes = () => {
