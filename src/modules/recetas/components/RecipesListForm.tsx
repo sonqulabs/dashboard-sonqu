@@ -39,6 +39,7 @@ import { useCreateRecipe } from 'raiz/src/hooks/use-recipes';
 import { MultiSelect } from './Multiselect';
 // import { toast } from 'sonner';
 import { Heading } from 'raiz/src/common/components/customize/Heading';
+import { useRouter } from 'next/navigation';
 const formSchema = z.object({
 	ingredients: z.string().min(2, {
 		message: 'about must be at least 2 characters.',
@@ -70,6 +71,7 @@ export default function RecipesListForm() {
 	const [files, setFiles] = useState<File[] | null>(null);
 	const { data } = useCategory();
 	const { mutation } = useCreateRecipe();
+	const router = useRouter();
 	const dropZoneConfig = {
 		maxFiles: 1,
 		maxSize: 1024 * 1024 * 4,
@@ -153,6 +155,12 @@ export default function RecipesListForm() {
 
 	return (
 		<div className="w-full h-screen mx-auto space-y-8 my-10">
+			<button
+				className="hover:underline text-sm "
+				onClick={() => router.back()}
+			>
+				<span>{`<--`}</span> Volver
+			</button>
 			<Heading title={`Crear una receta`} />
 			<Form {...form}>
 				<form
@@ -378,7 +386,7 @@ export default function RecipesListForm() {
 					/>
 
 					<Button type="submit" className="mb-6">
-						Submit
+						Crear
 					</Button>
 				</form>
 			</Form>

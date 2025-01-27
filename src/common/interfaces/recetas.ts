@@ -18,10 +18,14 @@ export type Recipes = {
 	description: string;
 	image: File;
 	videoUrl?: string;
-	prepTime?: number;
-	servings?: number;
-	difficulty?: string;
+	prepTime: number;
+	servings: number;
+	difficulty: string;
 	ingredients?: string;
 	instructions?: string;
-	categories?: string[];
+	categories: string[];
+	imageUrl?: string;
+	createdAt?: string;
+	updatedAt?: string;
+	userId?: number;
 };
