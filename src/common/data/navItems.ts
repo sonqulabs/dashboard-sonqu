@@ -24,12 +24,12 @@ export const navItems: NavItem[] = [
 
 		items: [
 			{
-				title: 'Pendientes',
+				title: 'Recetas Pendientes',
 				url: '/dashboard/profile',
 				icon: 'userPen',
 			},
 			{
-				title: 'Lista Total',
+				title: 'Recetas totales',
 				url: '/recetas/lista-recetas',
 				icon: 'login',
 			},
