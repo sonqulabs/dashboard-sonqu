@@ -23,11 +23,11 @@ export const navItems: NavItem[] = [
 		isActive: true,
 
 		items: [
-			{
-				title: 'Recetas Pendientes',
-				url: '/dashboard/profile',
-				icon: 'userPen',
-			},
+			// {
+			// 	title: 'Recetas Pendientes',
+			// 	url: '/dashboard/profile',
+			// 	icon: 'userPen',
+			// },
 			{
 				title: 'Recetas totales',
 				url: '/recetas/lista-recetas',

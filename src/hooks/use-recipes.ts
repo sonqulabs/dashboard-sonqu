@@ -11,7 +11,7 @@ export const useRecipes = () => {
 		isLoading,
 		isError,
 	} = useQuery({
-		queryKey: ['categories'],
+		queryKey: ['recipes'],
 		queryFn: getRecipes,
 	});
 
@@ -78,7 +78,7 @@ export const useDeleteRecipe = () => {
 			return await deleteRecipe(id);
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ['categories'] });
+			queryClient.invalidateQueries({ queryKey: ['recipes'] });
 		},
 		onError: (error) => {
 			console.error('Error al crear o editar el grupo de categoría:', error);

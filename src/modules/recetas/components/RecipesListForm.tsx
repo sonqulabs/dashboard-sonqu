@@ -20,7 +20,7 @@ import {
 	FormLabel,
 	FormMessage,
 } from '@shadcnui/form';
-import { CloudUpload } from 'lucide-react';
+import { CloudUpload, Loader2 } from 'lucide-react';
 import Image from 'next/image';
 import { Input } from 'raiz/src/common/components/shadcnui/input';
 import { useState } from 'react';
@@ -81,7 +81,7 @@ export default function RecipesListForm() {
 	const dificultadData = [
 		{ label: 'facil' },
 		{ label: 'medio' },
-		{ label: 'difícil' },
+		{ label: 'dificil' },
 	];
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
@@ -154,7 +154,7 @@ export default function RecipesListForm() {
 	}
 
 	return (
-		<div className="w-full h-screen mx-auto space-y-8 my-10">
+		<div className="w-full h-screen mx-auto space-y-8 mb-10">
 			<button
 				className="hover:underline text-sm "
 				onClick={() => router.back()}
@@ -188,7 +188,7 @@ export default function RecipesListForm() {
 						name="categories"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Categories</FormLabel>
+								<FormLabel>Categorías</FormLabel>
 								<FormControl>
 									<MultiSelect
 										options={data
@@ -257,7 +257,7 @@ export default function RecipesListForm() {
 						name="prepTime"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Tiempo de preparación</FormLabel>
+								<FormLabel>Tiempo de preparación (Minutos)</FormLabel>
 								<FormControl>
 									<Input placeholder="Escriba el tiempo" {...field} />
 								</FormControl>
@@ -385,8 +385,16 @@ export default function RecipesListForm() {
 						)}
 					/>
 
-					<Button type="submit" className="mb-6">
-						Crear
+					<Button type="submit" disabled={mutation.isPending}>
+						{mutation.isPending ? (
+							<span className="flex items-center gap-2">
+								{' '}
+								<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+								cargando
+							</span>
+						) : (
+							<>Crear</>
+						)}
 					</Button>
 				</form>
 			</Form>
