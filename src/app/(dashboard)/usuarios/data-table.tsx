@@ -62,12 +62,10 @@ export function DataTableUsers<TData extends { id: number | string }, TValue>({
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
 				<Input
-					placeholder="Filtral Categorias..."
-					value={
-						(table.getColumn('username')?.getFilterValue() as string) ?? ''
-					}
+					placeholder="Filtrar por celular..."
+					value={(table.getColumn('phone')?.getFilterValue() as string) ?? ''}
 					onChange={(event) =>
-						table.getColumn('username')?.setFilterValue(event.target.value)
+						table.getColumn('phone')?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm rounded-xl"
 				/>

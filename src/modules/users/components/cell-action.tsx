@@ -4,10 +4,9 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuLabel,
 	DropdownMenuTrigger,
 } from '@shadcnui/dropdown-menu';
-import { Edit, MoreHorizontal } from 'lucide-react';
+import { Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { User } from 'raiz/src/common/interfaces/configuracion';
 import { useDeleteUser } from 'raiz/src/hooks/useUsers';
@@ -36,12 +35,12 @@ export const CellAction: React.FC<CellActionProps> = ({ data }) => {
 					</Button>
 				</DropdownMenuTrigger>
 				<DropdownMenuContent align="end">
-					<DropdownMenuLabel>Actions</DropdownMenuLabel>
-
 					<DropdownMenuItem onClick={() => router.push(`/usuarios/${data.id}`)}>
-						<Edit className="mr-2 h-4 w-4" /> Update
+						<Edit className=" h-4 w-4" /> Editar
 					</DropdownMenuItem>
-					<DropdownMenuItem onClick={handleDelete}>Borrar</DropdownMenuItem>
+					<DropdownMenuItem onClick={handleDelete}>
+						<Trash2 className=" h-4 w-4" /> Borrar
+					</DropdownMenuItem>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</>

@@ -24,7 +24,7 @@ export type User = {
 	updated_at?: string;
 	role?: RoleBasicInfo;
 	phone: string;
-	password?: string;
+	password?: string | null;
 	state?: string;
 	email?: string | null;
 	username?: string;

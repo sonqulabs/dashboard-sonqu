@@ -34,6 +34,7 @@ import { useCreateOrUpdateUser } from 'raiz/src/hooks/useUsers';
 import { Roles, User } from 'raiz/src/common/interfaces/configuracion';
 import { useRole } from 'raiz/src/hooks/useRoles';
 import { useRouter } from 'next/navigation';
+import { UsersService } from 'raiz/src/common/services/users.service';
 const formSchema = z.object({
 	password: z.string().min(2, {
 		message: 'Product name must be at least 2 characters.',
@@ -71,10 +72,26 @@ export default function UserForm({
 	const defaultValues = {
 		phone: initialData?.phone || '',
 		username: initialData?.username || '',
-		password: initialData?.password || '',
+		password: initialData?.password ? '******' : '',
 		role: initialData?.role?.id?.toString() || '',
 		state: initialData?.state || '',
 		email: initialData?.email || '',
+	};
+
+	//hacer peticion de contraseña
+	const { getUserPassword } = UsersService();
+
+	const HandleFetchPassword = async () => {
+		try {
+			if (initialData != null) {
+				const contrasena = await getUserPassword(String(initialData?.id));
+				form.setValue('password', contrasena?.password || '');
+			}
+
+			setShowPassword(!showPassword); // Actual
+		} catch (error) {
+			console.error('Error al obtener la contraseña:', error);
+		}
 	};
 
 	const form = useForm<z.infer<typeof formSchema>>({
@@ -86,9 +103,10 @@ export default function UserForm({
 		console.log('user:', values);
 		try {
 			const id = initialData?.id?.toString();
-			const { role, email, ...otherValues } = values;
+			const { role, email, password, ...otherValues } = values;
 			const formattedValues = {
 				roleId: Number(role),
+				password: password === '******' ? null : password,
 				email: email === '' ? null : email,
 				...otherValues,
 			};
@@ -197,7 +215,7 @@ export default function UserForm({
 													variant="ghost"
 													size="icon"
 													className="absolute right-0 top-0 h-full"
-													onClick={() => setShowPassword(!showPassword)}
+													onClick={HandleFetchPassword}
 													disabled={!field.value}
 												>
 													{showPassword ? (

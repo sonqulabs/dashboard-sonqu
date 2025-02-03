@@ -31,7 +31,7 @@ export const columnsListaRecetas: ColumnDef<Recipes>[] = [
 							alt={alt}
 							width={50}
 							height={50}
-							className="rounded-full w-[50px] h-[50px] object-cover"
+							className="rounded-full w-[40px] h-[40px] object-cover"
 						/>
 						<div>
 							<div className="font-medium">{row.original.title}</div>

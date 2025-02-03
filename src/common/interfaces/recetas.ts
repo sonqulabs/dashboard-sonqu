@@ -16,7 +16,7 @@ export type Recipes = {
 	id?: number;
 	title: string;
 	description: string;
-	image: File;
+	image?: File;
 	videoUrl?: string;
 	prepTime: number;
 	servings: number;
@@ -28,4 +28,5 @@ export type Recipes = {
 	createdAt?: string;
 	updatedAt?: string;
 	userId?: number;
+	username?: string;
 };

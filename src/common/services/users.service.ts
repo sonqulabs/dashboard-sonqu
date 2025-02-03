@@ -16,6 +16,12 @@ export const UsersService = () => {
 		return res;
 	};
 
+	const getUserPassword = async (id: string): Promise<{ password: string }> => {
+		configRequest({ endpoint: `user/getpsu/${id}` });
+		const res = await get<{ password: string }>();
+		return res;
+	};
+
 	const getUserById = async (id: string): Promise<User> => {
 		configRequest({ endpoint: `user/${id}` });
 		const res = await get<User>();
@@ -52,5 +58,6 @@ export const UsersService = () => {
 		updateUser,
 		deleteUser,
 		deleteUserIds,
+		getUserPassword,
 	};
 };
