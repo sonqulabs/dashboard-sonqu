@@ -165,227 +165,229 @@ export default function RecipesListForm() {
 			<Form {...form}>
 				<form
 					onSubmit={form.handleSubmit(onSubmit)}
-					className="grid grid-cols-1 lg:grid-cols-2 gap-8 "
+					className="grid grid-cols-1  gap-8 "
 				>
-					<FormField
-						control={form.control}
-						name="title"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Título</FormLabel>
-								<FormControl>
-									<Input
-										placeholder="Escriba el título de la receta"
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="categories"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Categorías</FormLabel>
-								<FormControl>
-									<MultiSelect
-										options={data
-											.filter((category) => category.id !== undefined) // Filtra solo los que tienen `id`
-											.map((category) => ({
-												value: category.id!.toString(), // Usa `id` con seguridad (ya está filtrado)
-												label: category.name,
-											}))}
-										onValueChange={field.onChange}
-										value={field.value}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="servings"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Cantidad de personas</FormLabel>
-								<FormControl>
-									<Input
-										placeholder="Escriba cuantos pueden comer"
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-
-					<FormField
-						control={form.control}
-						name="difficulty"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Dificultad</FormLabel>
-								<Select
-									onValueChange={field.onChange}
-									defaultValue={field.value}
-								>
+					<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+						<FormField
+							control={form.control}
+							name="title"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Título</FormLabel>
 									<FormControl>
-										<SelectTrigger>
-											<SelectValue placeholder="Seleccione una" />
-										</SelectTrigger>
-									</FormControl>
-									<SelectContent>
-										{dificultadData?.map((item) => {
-											return (
-												<SelectItem key={item.label} value={item.label}>
-													{item.label}
-												</SelectItem>
-											);
-										})}
-									</SelectContent>
-								</Select>
-
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="prepTime"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Tiempo de preparación (Minutos)</FormLabel>
-								<FormControl>
-									<Input placeholder="Escriba el tiempo" {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="videoUrl"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Url Youtube</FormLabel>
-								<FormControl>
-									<Input placeholder="Escriba o pegue una url" {...field} />
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="description"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Descripcion</FormLabel>
-								<FormControl>
-									<Textarea
-										placeholder="Escriba una descripcion"
-										className="resize-none"
-										{...field}
-									/>
-								</FormControl>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="image"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Imagen de la Receta(1 sola imagen)</FormLabel>
-								<FormControl>
-									<FileUploader
-										value={files}
-										onValueChange={(newFiles) => {
-											setFiles(newFiles);
-											form.setValue('image', newFiles); // Sincronizar con react-hook-form
-										}}
-										dropzoneOptions={dropZoneConfig}
-										className="relative bg-background rounded-lg p-0.5"
-									>
-										<FileInput
-											id="fileInput"
-											className="outline-dashed outline-1 outline-slate-500"
+										<Input
+											placeholder="Escriba el título de la receta"
 											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="categories"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Categorías</FormLabel>
+									<FormControl>
+										<MultiSelect
+											options={data
+												.filter((category) => category.id !== undefined) // Filtra solo los que tienen `id`
+												.map((category) => ({
+													value: category.id!.toString(), // Usa `id` con seguridad (ya está filtrado)
+													label: category.name,
+												}))}
+											onValueChange={field.onChange}
+											value={field.value}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="servings"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Cantidad de personas</FormLabel>
+									<FormControl>
+										<Input
+											placeholder="Escriba cuantos pueden comer"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+
+						<FormField
+							control={form.control}
+							name="difficulty"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Dificultad</FormLabel>
+									<Select
+										onValueChange={field.onChange}
+										defaultValue={field.value}
+									>
+										<FormControl>
+											<SelectTrigger>
+												<SelectValue placeholder="Seleccione una" />
+											</SelectTrigger>
+										</FormControl>
+										<SelectContent>
+											{dificultadData?.map((item) => {
+												return (
+													<SelectItem key={item.label} value={item.label}>
+														{item.label}
+													</SelectItem>
+												);
+											})}
+										</SelectContent>
+									</Select>
+
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="prepTime"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Tiempo de preparación (Minutos)</FormLabel>
+									<FormControl>
+										<Input placeholder="Escriba el tiempo" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="videoUrl"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Url Youtube</FormLabel>
+									<FormControl>
+										<Input placeholder="Escriba o pegue una url" {...field} />
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="description"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Descripcion</FormLabel>
+									<FormControl>
+										<Textarea
+											placeholder="Escriba una descripcion"
+											className="resize-none"
+											{...field}
+										/>
+									</FormControl>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="image"
+							render={({ field }) => (
+								<FormItem className="col-span-2">
+									<FormLabel>Imagen de la Receta(1 sola imagen)</FormLabel>
+									<FormControl>
+										<FileUploader
+											value={files}
+											onValueChange={(newFiles) => {
+												setFiles(newFiles);
+												form.setValue('image', newFiles); // Sincronizar con react-hook-form
+											}}
+											dropzoneOptions={dropZoneConfig}
+											className="relative bg-background rounded-lg p-0.5"
 										>
-											<div className="flex items-center justify-center flex-col p-2  w-full ">
-												<CloudUpload className="text-gray-500 w-10 h-10" />
-												<p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
-													<span className="font-semibold">
-														Click para cargar
-													</span>
-													&nbsp; o arraste y suelte
-												</p>
-												<p className="text-xs text-gray-500 dark:text-gray-400">
-													SVG, PNG, JPG or GIF
-												</p>
-											</div>
-										</FileInput>
-										<FileUploaderContent>
-											{files &&
-												files.length > 0 &&
-												files.map((file, i) => (
-													<FileUploaderItem key={i} index={i}>
-														<Image
-															src={URL.createObjectURL(file)}
-															alt={file.name}
-															height={10}
-															width={10}
-															className=" p-0 object-cover rounded-full size-4"
-														/>
-														<span>{file.name}</span>
-													</FileUploaderItem>
-												))}
-										</FileUploaderContent>
-									</FileUploader>
-								</FormControl>
+											<FileInput
+												id="fileInput"
+												className="outline-dashed outline-1 outline-slate-500"
+												{...field}
+											>
+												<div className="flex items-center justify-center flex-col p-2  w-full ">
+													<CloudUpload className="text-gray-500 w-10 h-10" />
+													<p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
+														<span className="font-semibold">
+															Click para cargar
+														</span>
+														&nbsp; o arraste y suelte
+													</p>
+													<p className="text-xs text-gray-500 dark:text-gray-400">
+														SVG, PNG, JPG or GIF
+													</p>
+												</div>
+											</FileInput>
+											<FileUploaderContent>
+												{files &&
+													files.length > 0 &&
+													files.map((file, i) => (
+														<FileUploaderItem key={i} index={i}>
+															<Image
+																src={URL.createObjectURL(file)}
+																alt={file.name}
+																height={10}
+																width={10}
+																className=" p-0 object-cover rounded-full size-4"
+															/>
+															<span>{file.name}</span>
+														</FileUploaderItem>
+													))}
+											</FileUploaderContent>
+										</FileUploader>
+									</FormControl>
 
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="ingredients"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Ingredientes</FormLabel>
-								<FormControl>
-									<RichTextEditor {...field} />
-								</FormControl>
-								<FormDescription>
-									Escribe tu lista de Ingredientes.
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="instructions"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Instrucciones</FormLabel>
-								<FormControl>
-									<RichTextEditor {...field} />
-								</FormControl>
-								<FormDescription>
-									Escribe tu lista de Instrucciones.
-								</FormDescription>
-								<FormMessage />
-							</FormItem>
-						)}
-					/>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="ingredients"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Ingredientes</FormLabel>
+									<FormControl>
+										<RichTextEditor {...field} />
+									</FormControl>
+									<FormDescription>
+										Escribe tu lista de Ingredientes.
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="instructions"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Instrucciones</FormLabel>
+									<FormControl>
+										<RichTextEditor {...field} />
+									</FormControl>
+									<FormDescription>
+										Escribe tu lista de Instrucciones.
+									</FormDescription>
+									<FormMessage />
+								</FormItem>
+							)}
+						/>
+					</div>
 
-					<Button type="submit" disabled={mutation.isPending}>
+					<Button type="submit" disabled={mutation.isPending} className="w-min">
 						{mutation.isPending ? (
 							<span className="flex items-center gap-2">
 								{' '}

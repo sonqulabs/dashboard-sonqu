@@ -51,10 +51,10 @@ export function DataTableListaRecetas<TData, TValue>({
 		<div className="space-y-4">
 			<div className="flex items-center justify-between">
 				<Input
-					placeholder="Filtrar Recetas..."
-					value={(table.getColumn('id')?.getFilterValue() as string) ?? ''}
+					placeholder="Filtrar por nombre..."
+					value={(table.getColumn('title')?.getFilterValue() as string) ?? ''}
 					onChange={(event) =>
-						table.getColumn('id')?.setFilterValue(event.target.value)
+						table.getColumn('title')?.setFilterValue(event.target.value)
 					}
 					className="max-w-sm rounded-xl"
 				/>
