@@ -28,9 +28,12 @@ export const RecipesService = () => {
 
 		return res;
 	};
-	const updateRecipe = async (data: Recipes, id: string): Promise<Recipes> => {
+	const updateRecipe = async (
+		data: FormData,
+		id: string
+	): Promise<FormData> => {
 		configRequest({ endpoint: `recipe/${id}` });
-		const res = await put<Recipes>(data);
+		const res = await put<FormData>(data);
 
 		return res;
 	};

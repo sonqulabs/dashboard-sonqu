@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
 import { RecipesService } from '../common/services/recipes.service';
 
-const { getRecipes, getRecipeById, createRecipe, deleteRecipe } =
+const { getRecipes, getRecipeById, updateRecipe, createRecipe, deleteRecipe } =
 	RecipesService();
 
 export const useRecipes = () => {
@@ -20,7 +20,7 @@ export const useRecipes = () => {
 
 export const useRecipeById = (id: string, title: boolean) => {
 	const { data, isLoading, isError } = useQuery({
-		queryKey: ['categoryId', id],
+		queryKey: ['recipeId', id],
 		queryFn: () => getRecipeById(id),
 		enabled: !title,
 	});
@@ -64,6 +64,24 @@ export const useCreateRecipe = () => {
 		},
 		onError: (error) => {
 			console.error('Error al crear la receta:', error);
+		},
+	});
+
+	return { mutation };
+};
+
+export const useUpdateRecipe = () => {
+	const router = useRouter();
+
+	const mutation = useMutation({
+		mutationFn: async ({ data, id }: { data: FormData; id: string }) => {
+			return await updateRecipe(data, id);
+		},
+		onSuccess: () => {
+			router.push('/recetas/lista-recetas');
+		},
+		onError: (error) => {
+			console.error('Error al actualizar la receta:', error);
 		},
 	});
 

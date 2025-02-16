@@ -1,21 +1,31 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { PersonStanding } from 'lucide-react';
+import { Sparkles, Users } from 'lucide-react';
 import Image from 'next/image';
 import { Badge } from 'raiz/src/common/components/shadcnui/badge';
 import { getImageRecipe } from 'raiz/src/common/helpers/getImageUrl';
 import { Recipes } from 'raiz/src/common/interfaces/recetas';
+import { ActionsRecipes } from 'raiz/src/modules/recetas/components/ActionsRecipes';
 // import { CategoryActions } from 'raiz/src/modules/recetas/components/categoryActions';
 
 export const columnsListaRecetas: ColumnDef<Recipes>[] = [
 	{
 		accessorKey: 'title',
-		header: () => <div className="pl-4">Imagen</div>,
+		header: () => <div className="pl-4">Receta</div>,
 		cell: ({ row }) => {
 			// Obtener valores de la fila
 			const imageUrl = row.original.imageUrl as string;
 			const alt = (row.original.title as string) || 'Imagen de receta';
+
+			// Verificar si la receta es nueva (últimos 7 días)
+			const createdAt = row.original.createdAt
+				? new Date(row.original.createdAt)
+				: null;
+			const now = new Date();
+			const isNew = createdAt
+				? (now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24) <= 2
+				: false;
 
 			// Verificar si hay imagen
 			if (!imageUrl) {
@@ -31,13 +41,52 @@ export const columnsListaRecetas: ColumnDef<Recipes>[] = [
 							alt={alt}
 							width={50}
 							height={50}
-							className="rounded-full w-[40px] h-[40px] object-cover"
+							className="rounded-xl w-[50px] h-[50px] object-cover shadow-md"
 						/>
 						<div>
 							<div className="font-medium">{row.original.title}</div>
-							<span className="mt-0.5 text-xs text-muted-foreground">
-								{row.original.userId}
-							</span>
+							{isNew && (
+								<Badge
+									variant="outline"
+									className="bg-emerald-100 text-emerald-700 border-0 flex items-center gap-1 mt-1 w-min whitespace-nowrap"
+								>
+									<Sparkles className="h-3 w-3" />
+									Nuevo
+								</Badge>
+							)}
+
+							{/* <span className="mt-0.5 text-xs text-muted-foreground">
+								{row.original.user?.username}
+							</span> */}
+						</div>
+					</div>
+				</div>
+			);
+		},
+	},
+	{
+		accessorKey: 'user',
+		header: () => <div className="pl-4">Autor</div>,
+		cell: ({ row }) => {
+			const username = row.original.user?.username || 'Anónimo';
+			const initial = username.charAt(0).toUpperCase(); // Obtener la primera letra en mayúscula
+			const roles = row.original.user?.role?.name || 'público';
+			return (
+				<div className="pl-4 min-w-[200px]">
+					<div className="flex items-center gap-3">
+						{/* Avatar con inicial */}
+						<div className="h-8 w-8  flex items-center justify-center rounded-full bg-gray-200 text-gray-600 font-semibold text-sm">
+							{initial}
+						</div>
+						{/* Nombre del usuario */}
+						<div className="flex flex-col gap-1">
+							<span className="mt-0.5 text-sm font-medium">{username}</span>
+							<Badge
+								variant="outline"
+								className=" bg-gray-100 text-gray-800 border-gray-200 w-min"
+							>
+								{roles}
+							</Badge>
 						</div>
 					</div>
 				</div>
@@ -64,76 +113,55 @@ export const columnsListaRecetas: ColumnDef<Recipes>[] = [
 				  }).format(new Date(rawDate as string))
 				: 'Fecha no disponible';
 
-			return <div className=" pl-4">{formattedDate}</div>;
+			return <div className=" pl-4 min-w-[200px]">{formattedDate}</div>;
 		},
 	},
 	{
-		accessorKey: 'difficulty',
-		header: () => <div className="pl-4">Dificultad</div>,
+		accessorKey: 'categories',
+		header: () => <div className="pl-4">Categorías</div>,
 		cell: ({ row }) => {
-			let difficulty = row.getValue('difficulty') as string;
+			// Obtener las categorías de la receta
+			const categories = row.original.categories as {
+				category: { name: string };
+			}[];
 
-			// Normalizar valores incorrectos
-			const difficultyMap: Record<string, string> = {
-				facil: 'fácil',
-				fácil: 'fácil',
-				medio: 'medio',
-				intermedio: 'medio',
-				dificil: 'difícil',
-				difícil: 'difícil',
-			};
+			// Verificar si hay categorías
+			if (!categories || categories.length === 0) {
+				return <div className="pl-4 text-muted-foreground">Sin categorías</div>;
+			}
 
-			// Asignar valor normalizado o 'Desconocido'
-			difficulty = difficultyMap[difficulty.toLowerCase()] || 'Desconocido';
-
-			// Mapeo de colores según dificultad
-			const difficultyColors: Record<string, string> = {
-				fácil: 'bg-green-500 text-green-700 hover:bg-green-500',
-				medio: 'bg-yellow-500 text-yellow-700 hover:bg-yellow-500',
-				difícil: 'bg-red-400 text-red-800 hover:bg-red-400',
-				desconocido: 'bg-gray-500 text-gray-700 hover:bg-gray-500',
-			};
-
-			const badgeClass = difficultyColors[difficulty];
-
+			// Renderizar las categorías
 			return (
-				<div className="pl-4">
-					<Badge className={` ${badgeClass}`}>{difficulty}</Badge>
+				<div className="pl-4 flex flex-wrap gap-1 max-w-[300px] w-full">
+					{categories.map((cat, index) => (
+						<Badge
+							key={index}
+							variant="outline"
+							className="bg-emerald-500 hover:bg-emerald-500 text-white border-0"
+						>
+							{cat.category.name}
+						</Badge>
+					))}
 				</div>
 			);
 		},
-	},
-	{
-		accessorKey: 'prepTime',
-		header: () => <div className="pl-4 ">Tiempo de Preparación</div>,
-		cell: ({ row }) => (
-			<div className=" pl-4">{row.getValue('prepTime')} min</div>
-		), // columna más ancha para nombres
 	},
 	{
 		accessorKey: 'servings',
 		header: () => <div className="pl-4 ">Cantidad de Personas</div>,
 		cell: ({ row }) => (
 			<div className=" pl-4 flex items-center gap-1">
-				<PersonStanding />
+				<Users className="size-4" />
 				{row.getValue('servings')}{' '}
 			</div>
-		), // columna más ancha para nombres
+		),
 	},
-	// {
-	// 	accessorKey: 'categories',
-	// 	header: () => <div className="">Grupo al que pertenece</div>,
-	// 	cell: ({ row }) => (
-	// 		<div className=" font-medium min-w-[50px] ">
-	// 			{row.original.categories}
-	// 		</div>
-	// 	),
-	// },
-	// {
-	// 	id: 'actions',
-	// 	cell: ({ row }) => {
-	// 		const payment = row.original;
-	// 		return <CategoryActions data={payment} />;
-	// 	},
-	// },
+	{
+		id: 'actions',
+		cell: ({ row }) => {
+			const data = row.original; // 👈 Aquí accedes a la receta completa
+
+			return <ActionsRecipes data={data} />;
+		},
+	},
 ];

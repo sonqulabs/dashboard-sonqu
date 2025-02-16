@@ -1,0 +1,367 @@
+/* eslint-disable @typescript-eslint/no-empty-object-type */
+'use client';
+
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+
+import { Button } from '@shadcnui/button';
+import {
+	FileInput,
+	FileUploader,
+	FileUploaderContent,
+	FileUploaderItem,
+} from '@shadcnui/file-upload';
+import {
+	Form,
+	FormControl,
+	FormDescription,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from '@shadcnui/form';
+import { CloudUpload, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { Input } from 'raiz/src/common/components/shadcnui/input';
+import { useState } from 'react';
+// import { toast } from 'sonner';
+import RichTextEditor from './TextEditor';
+import { Textarea } from '@shadcnui/textarea';
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from '@shadcnui/select';
+import { useCategory } from 'raiz/src/hooks/useCategory';
+import { useCreateRecipe, useUpdateRecipe } from 'raiz/src/hooks/use-recipes';
+import { MultiSelect } from './Multiselect';
+// import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
+import { forwardRef } from 'react';
+import { Recipes } from 'raiz/src/common/interfaces/recetas';
+
+const formSchema = z.object({
+	ingredients: z.string().min(2, {
+		message: 'about must be at least 2 characters.',
+	}),
+	instructions: z.string().min(2, {
+		message: 'about must be at least 2 characters.',
+	}),
+	servings: z.string(),
+	description: z.string(),
+	title: z.string(),
+	videoUrl: z.string(),
+
+	categories: z.array(z.string().min(1)).min(1),
+	// .nonempty('Please select at least one framework.'),
+	image: z
+		.array(
+			z.instanceof(File).refine((file) => file.size < 4 * 1024 * 1024, {
+				message: 'File size must be less than 4MB',
+			})
+		)
+		.max(1, {
+			message: 'Maximum 1 files are allowed',
+		})
+		.nullable(),
+});
+
+interface EditRecipesFormProps {
+	setIsLoading: (loading: boolean) => void;
+	dataReceta: Recipes;
+}
+
+export default forwardRef<HTMLFormElement, EditRecipesFormProps>(
+	function EditRecipesForm({ setIsLoading, dataReceta }, ref) {
+		const [files, setFiles] = useState<File[] | null>(null);
+		const { data } = useCategory();
+		const { mutation } = useUpdateRecipe();
+		const router = useRouter();
+		console.log('sssssssssssssssssss', dataReceta);
+		const dropZoneConfig = {
+			maxFiles: 1,
+			maxSize: 1024 * 1024 * 4,
+			multiple: false,
+		};
+
+		const form = useForm<z.infer<typeof formSchema>>({
+			resolver: zodResolver(formSchema),
+			defaultValues: {
+				ingredients: Array.isArray(dataReceta.ingredients)
+					? dataReceta.ingredients?.[0]?.name || ''
+					: dataReceta.ingredients || '',
+				instructions: Array.isArray(dataReceta.instructions)
+					? dataReceta.instructions?.[0]?.description || ''
+					: dataReceta.instructions || '',
+				title: dataReceta.title || '',
+				videoUrl: dataReceta.videoUrl || '',
+				servings: dataReceta.servings.toString() || '',
+				description: dataReceta.description || '',
+				image: null,
+				categories:
+					dataReceta.categories?.map((cat) => cat.categoryId.toString()) || [],
+			},
+		});
+
+		async function onSubmit(values: z.infer<typeof formSchema>) {
+			setIsLoading(true); // Activar estado de carga
+			try {
+				console.log('data zod:', values);
+				const formData = new FormData();
+
+				// Agregar los campos al FormData
+				formData.append('title', values.title);
+				formData.append('description', values.description);
+				formData.append('ingredients', values.ingredients);
+				formData.append('instructions', values.instructions);
+				formData.append('videoUrl', values.videoUrl);
+				formData.append('servings', values.servings);
+
+				// Agregar las categorías si existen
+				if (Array.isArray(values.categories)) {
+					values.categories.forEach((category, index) => {
+						formData.append(`categories[${index}]`, category);
+					});
+				}
+
+				// Agregar la imagen si existe
+				if (values.image instanceof File) {
+					formData.append('image', values.image);
+				}
+				// Si tienes un array de archivos (File[])
+				if (Array.isArray(values.image) && values.image.length > 0) {
+					values.image.forEach((file) => {
+						formData.append(`image`, file); // Añadir cada archivo al FormData
+					});
+				}
+
+				// Debug: Mostrar el contenido de FormData
+				for (const pair of formData.entries()) {
+					console.log(`${pair[0]}:`, pair[1]);
+				}
+
+				// Enviar el formulario usando la mutación
+				await mutation.mutateAsync({
+					data: formData,
+					id: dataReceta.id?.toString() ?? '',
+				});
+				// Mensaje de éxito
+			} catch (error) {
+				console.error('Error al enviar el formulario:', error);
+			} finally {
+				setIsLoading(false); // Desactivar estado de carga después de la mutación
+			}
+
+			// toast.message('Event has been created', {
+			// 	description: (
+			// 		<pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+			// 			<code className="text-white">{JSON.stringify(values, null, 2)}</code>
+			// 		</pre>
+			// 	),
+			// });
+		}
+
+		return (
+			<div className="w-full h-full mx-auto space-y-8 mb-10">
+				<Form {...form}>
+					<form
+						ref={ref}
+						onSubmit={form.handleSubmit(onSubmit)}
+						className="grid grid-cols-1  gap-8 "
+					>
+						<div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
+							<FormField
+								control={form.control}
+								name="title"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Título</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="Escriba el título de la receta"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="categories"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Categorías</FormLabel>
+										<FormControl>
+											<MultiSelect
+												options={data
+													.filter((category) => category.id !== undefined) // Filtra solo los que tienen `id`
+													.map((category) => ({
+														value: category.id!.toString(), // Usa `id` con seguridad (ya está filtrado)
+														label: category.name,
+													}))}
+												onValueChange={field.onChange}
+												value={field.value}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="servings"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Cantidad de personas</FormLabel>
+										<FormControl>
+											<Input
+												placeholder="Escriba cuantos pueden comer"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+
+							<FormField
+								control={form.control}
+								name="videoUrl"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Url Youtube</FormLabel>
+										<FormControl>
+											<Input placeholder="Escriba o pegue una url" {...field} />
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="description"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Descripcion</FormLabel>
+										<FormControl>
+											<Textarea
+												placeholder="Escriba una descripcion"
+												className="resize-none"
+												{...field}
+											/>
+										</FormControl>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="image"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Imagen de la Receta(1 sola imagen)</FormLabel>
+										<FormControl>
+											<FileUploader
+												value={files}
+												onValueChange={(newFiles) => {
+													setFiles(newFiles);
+													form.setValue('image', newFiles); // Sincronizar con react-hook-form
+												}}
+												dropzoneOptions={dropZoneConfig}
+												className="relative bg-background rounded-lg p-0.5"
+											>
+												<FileInput
+													id="fileInput"
+													className="outline-dashed outline-1 outline-slate-500"
+													{...field}
+												>
+													<div className="flex items-center justify-center flex-col p-2  w-full ">
+														<CloudUpload className="text-gray-500 w-10 h-10" />
+														<p className="mb-1 text-sm text-gray-500 dark:text-gray-400">
+															<span className="font-semibold">
+																Click para cargar
+															</span>
+															&nbsp; o arraste y suelte
+														</p>
+														<p className="text-xs text-gray-500 dark:text-gray-400">
+															SVG, PNG, JPG or GIF
+														</p>
+													</div>
+												</FileInput>
+												<FileUploaderContent>
+													{files &&
+														files.length > 0 &&
+														files.map((file, i) => (
+															<FileUploaderItem key={i} index={i}>
+																<Image
+																	src={URL.createObjectURL(file)}
+																	alt={file.name}
+																	height={10}
+																	width={10}
+																	className=" p-0 object-cover rounded-full size-4"
+																/>
+																<span>{file.name}</span>
+															</FileUploaderItem>
+														))}
+												</FileUploaderContent>
+											</FileUploader>
+										</FormControl>
+
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="ingredients"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Ingredientes</FormLabel>
+										<FormControl>
+											<RichTextEditor {...field} />
+										</FormControl>
+										<FormDescription>
+											Escribe tu lista de Ingredientes.
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+							<FormField
+								control={form.control}
+								name="instructions"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>Instrucciones</FormLabel>
+										<FormControl>
+											<RichTextEditor {...field} />
+										</FormControl>
+										<FormDescription>
+											Escribe tu lista de Instrucciones.
+										</FormDescription>
+										<FormMessage />
+									</FormItem>
+								)}
+							/>
+						</div>
+
+						<button type="submit" disabled={mutation.isPending} hidden>
+							{mutation.isPending ? (
+								<span className="flex items-center gap-2">
+									<Loader2 className="mr-2 h-5 w-5 animate-spin" />
+									cargando
+								</span>
+							) : (
+								<span>Crear</span>
+							)}
+						</button>
+					</form>
+				</Form>
+			</div>
+		);
+	}
+);

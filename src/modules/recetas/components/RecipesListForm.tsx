@@ -51,8 +51,7 @@ const formSchema = z.object({
 	description: z.string(),
 	title: z.string(),
 	videoUrl: z.string(),
-	prepTime: z.string(),
-	difficulty: z.string(),
+
 	categories: z.array(z.string().min(1)).min(1),
 	// .nonempty('Please select at least one framework.'),
 	image: z
@@ -78,11 +77,6 @@ export default function RecipesListForm() {
 		multiple: false,
 	};
 
-	const dificultadData = [
-		{ label: 'facil' },
-		{ label: 'medio' },
-		{ label: 'dificil' },
-	];
 	const form = useForm<z.infer<typeof formSchema>>({
 		resolver: zodResolver(formSchema),
 		defaultValues: {
@@ -91,8 +85,6 @@ export default function RecipesListForm() {
 			title: '',
 			videoUrl: '',
 			servings: '',
-			difficulty: '',
-			prepTime: '',
 			description: '',
 			image: null,
 			categories: [],
@@ -110,9 +102,7 @@ export default function RecipesListForm() {
 			formData.append('ingredients', values.ingredients);
 			formData.append('instructions', values.instructions);
 			formData.append('videoUrl', values.videoUrl);
-			formData.append('prepTime', values.prepTime);
 			formData.append('servings', values.servings);
-			formData.append('difficulty', values.difficulty);
 
 			// Agregar las categorías si existen
 			if (Array.isArray(values.categories)) {
@@ -225,49 +215,6 @@ export default function RecipesListForm() {
 
 						<FormField
 							control={form.control}
-							name="difficulty"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Dificultad</FormLabel>
-									<Select
-										onValueChange={field.onChange}
-										defaultValue={field.value}
-									>
-										<FormControl>
-											<SelectTrigger>
-												<SelectValue placeholder="Seleccione una" />
-											</SelectTrigger>
-										</FormControl>
-										<SelectContent>
-											{dificultadData?.map((item) => {
-												return (
-													<SelectItem key={item.label} value={item.label}>
-														{item.label}
-													</SelectItem>
-												);
-											})}
-										</SelectContent>
-									</Select>
-
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="prepTime"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>Tiempo de preparación (Minutos)</FormLabel>
-									<FormControl>
-										<Input placeholder="Escriba el tiempo" {...field} />
-									</FormControl>
-									<FormMessage />
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
 							name="videoUrl"
 							render={({ field }) => (
 								<FormItem>
@@ -300,7 +247,7 @@ export default function RecipesListForm() {
 							control={form.control}
 							name="image"
 							render={({ field }) => (
-								<FormItem className="col-span-2">
+								<FormItem>
 									<FormLabel>Imagen de la Receta(1 sola imagen)</FormLabel>
 									<FormControl>
 										<FileUploader
@@ -374,13 +321,11 @@ export default function RecipesListForm() {
 							name="instructions"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Instrucciones</FormLabel>
+									<FormLabel>Preparación</FormLabel>
 									<FormControl>
 										<RichTextEditor {...field} />
 									</FormControl>
-									<FormDescription>
-										Escribe tu lista de Instrucciones.
-									</FormDescription>
+									<FormDescription>Escribe tu Preparación.</FormDescription>
 									<FormMessage />
 								</FormItem>
 							)}

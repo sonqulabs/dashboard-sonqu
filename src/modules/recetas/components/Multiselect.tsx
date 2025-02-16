@@ -63,7 +63,7 @@ export function MultiSelect({
 			onKeyDown={handleKeyDown}
 			className="overflow-visible bg-transparent"
 		>
-			<div className="group rounded-md border border-input px-3 py-2 text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+			<div className="group rounded-md border border-input px-3 py-2 text-sm ring-offset-background ">
 				<div className="flex flex-wrap gap-1">
 					{value.map((val) => {
 						const option = options.find((opt) => opt.value === val);
@@ -93,11 +93,14 @@ export function MultiSelect({
 					/>
 				</div>
 			</div>
-			<div className="relative mt-2">
-				<CommandList>
-					{open && selectables.length > 0 && (
-						<div className="absolute top-0 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in">
-							<CommandGroup className="h-full overflow-auto">
+			<div className="relative">
+				{open && (
+					<CommandList
+						className="absolute top-2 z-10 w-full rounded-md border bg-popover text-popover-foreground shadow-md outline-none animate-in"
+						onMouseDown={(e) => e.preventDefault()}
+					>
+						{selectables.length > 0 && (
+							<CommandGroup>
 								{selectables.map((option) => (
 									<CommandItem
 										key={option.value}
@@ -112,9 +115,9 @@ export function MultiSelect({
 									</CommandItem>
 								))}
 							</CommandGroup>
-						</div>
-					)}
-				</CommandList>
+						)}
+					</CommandList>
+				)}
 			</div>
 		</Command>
 	);
