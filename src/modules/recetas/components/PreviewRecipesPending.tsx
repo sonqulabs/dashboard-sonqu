@@ -14,15 +14,15 @@ import {
 	DialogTrigger,
 } from '@shadcnui/dialog';
 import { ScrollArea } from '@shadcnui/scroll-area';
-import { Recipes } from 'raiz/src/common/interfaces/recetas';
+import { RecipesPending } from 'raiz/src/common/interfaces/recetas';
 import { getImageRecipe } from 'raiz/src/common/helpers/getImageUrl';
 
 interface RecipeProps {
 	open: boolean;
-	data: Recipes;
+	data: RecipesPending;
 	setOpen: (open: boolean) => void;
 }
-export const PreviewRecipes: React.FC<RecipeProps> = ({
+export const PreviewRecipesPending: React.FC<RecipeProps> = ({
 	open,
 	data,
 	setOpen,

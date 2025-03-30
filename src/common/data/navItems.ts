@@ -23,11 +23,11 @@ export const navItems: NavItem[] = [
 		isActive: true,
 
 		items: [
-			// {
-			// 	title: 'Recetas Pendientes',
-			// 	url: '/dashboard/profile',
-			// 	icon: 'userPen',
-			// },
+			{
+				title: 'Pendientes',
+				url: '/recetas/pendientes',
+				icon: 'userPen',
+			},
 			{
 				title: 'Recetas totales',
 				url: '/recetas/lista-recetas',
@@ -39,5 +39,12 @@ export const navItems: NavItem[] = [
 				icon: 'login',
 			},
 		],
+	},
+	{
+		title: 'Solicitudes de Contacto',
+		url: '/contacto',
+		icon: 'messageSquareText',
+		isActive: false,
+		items: [], // Empty array as there are no child items for Dashboard
 	},
 ];

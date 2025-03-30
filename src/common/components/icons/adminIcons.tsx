@@ -19,6 +19,7 @@ import {
 	LucideIcon,
 	LucideProps,
 	LucideShoppingBag,
+	MessageSquareText,
 	Moon,
 	MoreVertical,
 	Pizza,
@@ -37,6 +38,7 @@ import {
 export type Icon = LucideIcon;
 
 export const Icons = {
+	messageSquareText: MessageSquareText,
 	dashboard: LayoutDashboardIcon,
 	logo: Command,
 	login: LogIn,
