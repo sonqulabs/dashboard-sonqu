@@ -11,7 +11,7 @@ export const ContactListView = () => {
 	const { data } = useContact();
 	return (
 		<div className="container mx-auto pb-10 pt-5">
-			<Heading title={`Lista de recetas (${data.length})`} />
+			<Heading title={`Solicitudes de mensajes (${data.length})`} />
 			<DataTableContacto columns={columnsContacto} data={data.toReversed()} />
 
 			{/* <RecipesListForm /> */}
